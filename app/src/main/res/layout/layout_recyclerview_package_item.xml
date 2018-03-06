@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="94dp"
+    android:orientation="vertical">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="93dp"
+        android:orientation="horizontal"
+        android:paddingHorizontal="15dp"
+        android:paddingVertical="22dp">
+
+        <ImageView
+            android:id="@+id/img_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical" />
+
+        <RelativeLayout
+            android:id="@+id/rl"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:layout_toRightOf="@+id/img_icon">
+
+            <TextView
+                android:id="@+id/tv_packageName"
+                android:layout_width="151dp"
+                android:layout_height="25dp"
+                android:textColor="#FF333333"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tv_timeStamp"
+                android:layout_width="146dp"
+                android:layout_height="20dp"
+                android:layout_below="@+id/tv_packageName"
+                android:text="2018-02-08 10:47:36"
+                android:textColor="#FF999999"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_isDebugVersion"
+                android:layout_width="30dp"
+                android:layout_height="16dp"
+                android:layout_alignTop="@+id/tv_packageName"
+                android:layout_toRightOf="@+id/tv_packageName"
+                android:gravity="center_vertical"
+                android:text="测试"
+                android:visibility="invisible"
+                android:textColor="#FFFFAC44"
+                android:textSize="12sp" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/btn_downLoad"
+            android:layout_width="56dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="right|center_vertical"
+            android:layout_centerInParent="true"
+            android:layout_toRightOf="@+id/rl"
+            android:gravity="center"
+            android:text="@string/install"
+            android:textColor="#FF069991"
+            android:textSize="12sp" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#FFF0F4F4" />
+</LinearLayout>
