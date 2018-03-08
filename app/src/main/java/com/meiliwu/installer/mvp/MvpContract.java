@@ -1,11 +1,13 @@
 package com.meiliwu.installer.mvp;
 
 
+import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.entity.Result;
 
 import java.util.List;
 
+import retrofit2.http.Query;
 import rx.Observable;
 
 
@@ -15,12 +17,20 @@ import rx.Observable;
  */
 
 public class MvpContract {
-    public  interface IView{
-       void  onLoadDataSuccess(List<PackageEntity> dataSource);
-       void onLoadDataFailed();
+    public interface IView {
+        void onLoadPackageListSuccess(List<APKEntity> dataSource);
+
+        void onLoadPackageListFailed();
+
+        void onLoadAPKListSuccess(List<APKEntity> dataSource);
+
+        void onLoadAPKListFailed();
 
     }
-    public  interface IModel{
-         Observable<Result<PackageEntity>> getPackageList() ;
+
+    public interface IModel {
+        Observable<Result<APKEntity>> getPackageList();
+
+        Observable<Result<APKEntity>> getSpecifiedAPKVersionList(String system_name, String application_id, String version_type);
     }
 }

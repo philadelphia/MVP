@@ -17,11 +17,9 @@ import rx.Observable;
 public interface ApiService {
     /*获取所有APK列表*/
     @GET("/applicationClient/getApplications")
-    Observable<Result<PackageEntity>> getPackageList();
+    Observable<Result<APKEntity>> getPackageList();
 
     /*获取指定平台的特定APK(release/debug)列表*/
     @GET("/applicationClient/getApplicationVersions")
-    Observable<Result<APKEntity>> getSpecifiedAPKVersionList(@Query("application_id") String application_id,
-                                                             @Query("system_name") String system_name,
-                                                             @Query("version_type") String version_type);
+    Observable<Result<APKEntity>> getSpecifiedAPKVersionList(@Query("system_name") String system_name, @Query("application_id") String application_id, @Query("version_type") String version_type);
 }

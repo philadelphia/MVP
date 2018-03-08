@@ -29,30 +29,17 @@ public class APKEntity extends PackageEntity {
      * icon_url : http://cdn.mse.mlwplus.com/meiliwu/applications/2018/03/05/18/23/meiliwu.png
      */
 
-    private String id;
     private String version_name;
     private String application_id;
-    private String application_name;
     private String system_name;
     private String version_describe;
     private String download_url;
     private String plist_url;
     private String version_type;
-    private String if_deleted;
     private String status;
-    private String create_time;
-    private String update_time;
     private String update_type;
     private String uid;
-    private String icon_url;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getVersion_name() {
         return version_name;
@@ -68,14 +55,6 @@ public class APKEntity extends PackageEntity {
 
     public void setApplication_id(String application_id) {
         this.application_id = application_id;
-    }
-
-    public String getApplication_name() {
-        return application_name;
-    }
-
-    public void setApplication_name(String application_name) {
-        this.application_name = application_name;
     }
 
     public String getSystem_name() {
@@ -118,36 +97,12 @@ public class APKEntity extends PackageEntity {
         this.version_type = version_type;
     }
 
-    public String getIf_deleted() {
-        return if_deleted;
-    }
-
-    public void setIf_deleted(String if_deleted) {
-        this.if_deleted = if_deleted;
-    }
-
     public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getCreate_time() {
-        return create_time;
-    }
-
-    public void setCreate_time(String create_time) {
-        this.create_time = create_time;
-    }
-
-    public String getUpdate_time() {
-        return update_time;
-    }
-
-    public void setUpdate_time(String update_time) {
-        this.update_time = update_time;
     }
 
     public String getUpdate_type() {
@@ -164,14 +119,6 @@ public class APKEntity extends PackageEntity {
 
     public void setUid(String uid) {
         this.uid = uid;
-    }
-
-    public String getIcon_url() {
-        return icon_url;
-    }
-
-    public void setIcon_url(String icon_url) {
-        this.icon_url = icon_url;
     }
 
 
