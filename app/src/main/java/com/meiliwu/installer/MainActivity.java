@@ -108,6 +108,11 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
             public int getItemLayoutID() {
                 return R.layout.layout_recyclerview_package_item;
             }
+
+            @Override
+            public int getFootViewLayoutID() {
+                return R.layout.layout_footer_view;
+            }
         };
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -222,6 +227,11 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
             public int getItemLayoutID() {
                 return R.layout.layout_bottom_sheet_dialog_item;
             }
+
+            @Override
+            public int getFootViewLayoutID() {
+                return 0;
+            }
         };
         bottomRecyclerView.addOnItemTouchListener(new OnRecyclerViewItemClickListener(bottomRecyclerView) {
             @Override
@@ -255,6 +265,11 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
             @Override
             public int getItemLayoutID() {
                 return R.layout.layout_bottom_sheet_dialog_item;
+            }
+
+            @Override
+            public int getFootViewLayoutID() {
+                return 0;
             }
         };
         bottomRecyclerView.setAdapter(bottomSheetAdapter);

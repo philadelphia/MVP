@@ -32,31 +32,10 @@ public abstract class CustomRecyclerAdapter<T> extends RecyclerView.Adapter<Comm
 
     public abstract void convert(CommonViewHolder holder, T item ,int position);
     public abstract int getItemLayoutID();
+    public abstract int getFootViewLayoutID();
     @Override
     public int getItemCount() {
         return dataSource == null ? 0 : dataSource.size();
     }
 
-//    public static class MyViewHolder extends RecyclerView.ViewHolder{
-//        private ImageView img_icon;
-//        private TextView tv_packageName, tv_timeStamp;
-//        private Button btn_installer;
-//
-//        public MyViewHolder(View itemView) {
-//            super(itemView);
-////            ButterKnife.bind(itemView);
-//            img_icon = itemView.findViewById(R.id.img_icon);
-//            tv_packageName = itemView.findViewById(R.id.tv_packageName);
-//            tv_timeStamp = itemView.findViewById(R.id.tv_timeStamp);
-//            btn_installer = itemView.findViewById(R.id.btn_downLoad);
-//        }
-//    }
-
-//    public void setOnItemClickListener(CustomRecyclerAdapter.OnItemClickListener onItemClickListener) {
-//        this.onItemClickListener = onItemClickListener;
-//    }
-//
-//    public  interface OnItemClickListener{
-//        void onItemClick(View view);
-//    }
 }
