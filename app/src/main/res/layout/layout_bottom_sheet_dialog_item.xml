@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FFF8F8F8">
+    android:background="@color/bottomDialog_item_background">
     <TextView
         android:id="@+id/tv_packageName"
         android:layout_width="match_parent"
@@ -11,7 +11,7 @@
         android:background="#FFF8F8F8"
         android:gravity="center"
         android:text="南京麦风"
-        android:textColor="#FF666666"
+        android:textColor="@color/titleTextDefaultColor"
         android:textSize="16dp"
         />
 </LinearLayout>

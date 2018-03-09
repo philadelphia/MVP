@@ -10,40 +10,43 @@
         android:id="@+id/ll_spinner"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:paddingVertical="12dp"
+        android:orientation="horizontal"
         android:paddingHorizontal="20dp"
-        android:orientation="horizontal">
+        android:paddingVertical="12dp">
 
         <TextView
             android:id="@+id/tv_buildType"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_marginLeft="40dp"
-            android:height="20dp"
-            android:text="正式/测试"
-            android:textColor="#FF666666"
-            android:textSize="14sp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:drawableRight="@mipmap/choose_default" />
+            android:layout_marginLeft="40dp"
+            android:gravity="center|left"
+            android:layout_weight="1"
+            android:height="20dp"
+            android:drawableRight="@mipmap/choose_default"
+            android:drawablePadding="10dp"
+            android:text="@string/All"
+            android:textColor="#FF666666"
+            android:textSize="14sp" />
 
         <View
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/tv_packageName"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:height="20dp"
-            android:text="meiliwu测试"
-            android:textColor="#FF666666"
-            android:textSize="14sp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:drawableRight="@mipmap/choose_default" />
+            android:layout_marginRight="40dp"
+            android:gravity="center|left"
+            android:layout_weight="1"
+            android:drawableRight="@mipmap/choose_default"
+            android:drawablePadding="@dimen/dimen_dp_10"
+            android:text="@string/All"
+            android:textColor="#FF666666"
+            android:textSize="14sp" />
 
     </LinearLayout>
-
 
 
     <View
@@ -52,15 +55,22 @@
         android:layout_height="4dp"
         android:background="#FFF4F4F4" />
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayout"
+    <com.meiliwu.installer.view.StatusLayout
+        android:id="@+id/statusLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerView"
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </android.support.v4.widget.SwipeRefreshLayout>
+            android:layout_height="wrap_content">
 
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/dimen_dp_15"/>
+        </android.support.v4.widget.SwipeRefreshLayout>
+    </com.meiliwu.installer.view.StatusLayout>
 </LinearLayout>

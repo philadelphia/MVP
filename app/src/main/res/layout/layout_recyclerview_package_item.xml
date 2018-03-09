@@ -9,7 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="93dp"
         android:orientation="horizontal"
-        android:paddingHorizontal="15dp"
         android:paddingVertical="22dp">
 
         <ImageView
@@ -20,9 +19,9 @@
 
         <RelativeLayout
             android:id="@+id/rl"
-            android:layout_width="wrap_content"
+            android:layout_width="183dp"
             android:layout_height="match_parent"
-            android:layout_marginLeft="15dp"
+            android:layout_marginLeft="7dp"
             android:layout_toRightOf="@+id/img_icon">
 
             <TextView
@@ -45,8 +44,10 @@
                 android:id="@+id/tv_isDebugVersion"
                 android:layout_width="30dp"
                 android:layout_height="16dp"
+                android:layout_marginLeft="4dp"
                 android:layout_alignTop="@+id/tv_packageName"
                 android:layout_toRightOf="@+id/tv_packageName"
+                android:background="@drawable/bg_debug_yellow"
                 android:gravity="center_vertical"
                 android:text="测试"
                 android:visibility="invisible"
@@ -57,13 +58,15 @@
         <Button
             android:id="@+id/btn_downLoad"
             android:layout_width="56dp"
-            android:layout_height="wrap_content"
+            android:layout_height="24dp"
+            android:layout_marginLeft="40dp"
             android:layout_alignParentRight="true"
             android:layout_gravity="right|center_vertical"
             android:layout_centerInParent="true"
             android:layout_toRightOf="@+id/rl"
             android:gravity="center"
             android:text="@string/install"
+            android:background="@drawable/bg_install_green"
             android:textColor="#FF069991"
             android:textSize="12sp" />
 
@@ -72,5 +75,5 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="#FFF0F4F4" />
+        android:background="@color/dividerLineColor" />
 </LinearLayout>

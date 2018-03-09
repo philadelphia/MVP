@@ -4,4 +4,9 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="textSelectedColor">#FF069991</color>
+    <color name="titleTextDefaultColor">#FF666666</color>
+    <color name="titleTextSelectedColor">#FF333333</color>
+    <color name="dividerLineColor">#FFF4F4F4</color>
+    <color name="bottomDialog_item_background">#F8F8F8</color>
+    <color name="textDebugBackgroundColor">#FFFFAC44</color>
 </resources>

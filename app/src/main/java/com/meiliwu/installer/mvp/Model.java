@@ -23,8 +23,8 @@ public class Model implements MvpContract.IModel {
     }
 
     @Override
-    public Observable<Result<APKEntity>> getSpecifiedAPKVersionList(String system_name, String application_id, String version_type) {
-        return RetrofitUtil.getInstance().getRetrofit().create(ApiService.class).getSpecifiedAPKVersionList(system_name, application_id, version_type).compose(RxsRxSchedulers.<Result<APKEntity>>io_main());
+    public Observable<Result<APKEntity>> getSpecifiedAPKVersionList(String system_name, String application_id, String version_type, int pageIndex) {
+        return RetrofitUtil.getInstance().getRetrofit().create(ApiService.class).getSpecifiedAPKVersionList(system_name, application_id, version_type, pageIndex).compose(RxsRxSchedulers.<Result<APKEntity>>io_main());
     }
 
 

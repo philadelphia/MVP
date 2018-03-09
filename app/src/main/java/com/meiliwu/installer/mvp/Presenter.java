@@ -5,9 +5,14 @@ import android.util.Log;
 import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.entity.Result;
+import com.meiliwu.installer.rx.RxErrorHandler;
+import com.meiliwu.installer.rx.RxErrorHandlerSubscriber;
 
 import rx.Observable;
+import rx.Subscription;
+import rx.exceptions.OnErrorFailedException;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 
 
 /**
@@ -19,54 +24,70 @@ public class Presenter {
     private static final String TAG = "Presenter";
     private MvpContract.IView view;
     private MvpContract.IModel model;
+    private CompositeSubscription compositeSubscription;
+    private RxErrorHandler rxErrorHandler;
 
-    public Presenter(MvpContract.IView iView) {
+    public Presenter(MvpContract.IView iView, RxErrorHandler rxErrorHandler) {
         view = iView;
         model = new Model();
+        this.rxErrorHandler = rxErrorHandler;
+        compositeSubscription = new CompositeSubscription();
     }
 
     public void getPackageList() {
         Log.i(TAG, "getPackageList: ");
         Observable<Result<APKEntity>> observable = model.getPackageList();
-        observable.subscribe(new Action1<Result<APKEntity>>() {
+        Subscription subscribe = observable.subscribe(new RxErrorHandlerSubscriber<Result<APKEntity>>(rxErrorHandler) {
             @Override
-            public void call(Result<APKEntity> result) {
-                Log.i(TAG, "call: " + result.toString());
-                if (result.getCode() == 0) {
-                    if (result.getData().getData().size() > 0) {
-                        view.onLoadPackageListSuccess(result.getData().getData());
-                    }
-                }
-
+            public void onStart() {
+                super.onStart();
             }
-        }, new Action1<Throwable>() {
+
             @Override
-            public void call(Throwable throwable) {
-                view.onLoadPackageListFailed();
+            public void onNext(Result<APKEntity> apkEntityResult) {
+                if (apkEntityResult.getCode() == 0) {
+                    if (apkEntityResult.getData().getData().size() > 0) {
+                        view.onLoadPackageListSuccess(apkEntityResult.getData().getData());
+                    }
+                } else {
+                    view.onLoadPackageListFailed();
+                }
             }
         });
+
+        compositeSubscription.add(subscribe);
     }
 
-    public void getSpecifiedAPKVersionList(String system_name, String application_id, String version_type) {
-        Log.i(TAG, "getSpecifiedAPKVersionList: ");
-        Observable<Result<APKEntity>> specifiedAPKVersionList = model.getSpecifiedAPKVersionList(system_name, application_id, version_type);
-        specifiedAPKVersionList.subscribe(new Action1<Result<APKEntity>>() {
+    public void getSpecifiedAPKVersionList(String system_name, String application_id, String version_type, int pageIndex) {
+        Log.i(TAG, "system_name == :  " + system_name);
+        Log.i(TAG, "application_id: " + application_id);
+        Log.i(TAG, "version_type: " + version_type);
+        Log.i(TAG, "pageIndex: " + pageIndex);
+        Observable<Result<APKEntity>> specifiedAPKVersionList = model.getSpecifiedAPKVersionList(system_name, application_id, version_type, pageIndex);
+        Subscription subscribe = specifiedAPKVersionList.subscribe(new RxErrorHandlerSubscriber<Result<APKEntity>>(rxErrorHandler) {
             @Override
-            public void call(Result<APKEntity> apkEntityResult) {
+            public void onNext(Result<APKEntity> apkEntityResult) {
                 if (apkEntityResult.getCode() == 0) {
                     if (apkEntityResult.getData().getStatistic().getCount() > 0) {
+                        view.showContentView();
+                        view.notifyDataSize(apkEntityResult.getData().getStatistic().getCount());
                         view.onLoadAPKListSuccess(apkEntityResult.getData().getData());
                     } else {
-                        view.onLoadAPKListFailed();
+                        view.showEmptyView();
                     }
+                } else {
+                    view.showErrorView();
                 }
-            }
-        }, new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                view.onLoadAPKListFailed();
             }
         });
 
+        compositeSubscription.add(compositeSubscription);
+
+    }
+
+    public void onDestroy(){
+        if (compositeSubscription != null){
+            compositeSubscription.unsubscribe();
+        }
     }
 }

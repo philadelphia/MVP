@@ -103,9 +103,9 @@ public class CommonViewHolder extends RecyclerView.ViewHolder {
     /**
      * set view visible or gone
      */
-    public CommonViewHolder setVisible(int viewId, int visiblity) {
+    public CommonViewHolder setVisible(int viewId, int visibility) {
         View view = getView(viewId);
-        view.setVisibility(visiblity);
+        view.setVisibility(visibility);
         return this;
     }
 

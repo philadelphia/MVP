@@ -26,11 +26,20 @@ public class MvpContract {
 
         void onLoadAPKListFailed();
 
+        void notifyDataSize(int count);
+
+        void showContentView();
+
+        void showErrorView();
+
+        void showEmptyView();
+
+        void onFailure(String string);
     }
 
     public interface IModel {
         Observable<Result<APKEntity>> getPackageList();
 
-        Observable<Result<APKEntity>> getSpecifiedAPKVersionList(String system_name, String application_id, String version_type);
+        Observable<Result<APKEntity>> getSpecifiedAPKVersionList(String system_name, String application_id, String version_type, int pageIndex);
     }
 }

@@ -21,5 +21,5 @@ public interface ApiService {
 
     /*获取指定平台的特定APK(release/debug)列表*/
     @GET("/applicationClient/getApplicationVersions")
-    Observable<Result<APKEntity>> getSpecifiedAPKVersionList(@Query("system_name") String system_name, @Query("application_id") String application_id, @Query("version_type") String version_type);
+    Observable<Result<APKEntity>> getSpecifiedAPKVersionList(@Query("system_name") String system_name, @Query("application_id") String application_id, @Query("version_type") String version_type, @Query("page") int pageIndex);
 }
