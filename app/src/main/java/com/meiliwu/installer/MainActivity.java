@@ -37,24 +37,20 @@ import com.meiliwu.installer.mvp.Presenter;
 import com.meiliwu.installer.rx.ResponseErrorListener;
 import com.meiliwu.installer.rx.RxErrorHandler;
 import com.meiliwu.installer.service.DownloadService;
-import com.meiliwu.installer.utils.DisplayUtil;
 import com.meiliwu.installer.utils.EndlessRecyclerOnScrollListener;
+import com.meiliwu.installer.view.FilterTabItemView;
 import com.meiliwu.installer.view.StatusLayout;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements MvpContract.IView, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener ,ResponseErrorListener{
+public class MainActivity extends AppCompatActivity implements MvpContract.IView, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, ResponseErrorListener {
     private static final String TAG = "MainActivity";
     @BindView(R.id.statusLayout)
     StatusLayout statusLayout;
@@ -62,10 +58,10 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     RecyclerView recyclerView;
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.tv_buildType)
-    TextView tvBuildType;
-    @BindView(R.id.tv_packageName)
-    TextView tvPackageName;
+    @BindView(R.id.filter_buildType)
+    FilterTabItemView filterBuildType;
+    @BindView(R.id.filter_packageName)
+    FilterTabItemView filterPackageName;
 
     private RecyclerView bottomRecyclerView;
     private Button btnCancel;
@@ -79,13 +75,11 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     private int selectedVersionTypeIndex;
     private String selectedApplicationID;
     private String selectedApplicationName = "全部";
-    private String defaultSystemType = "android";
+    private static final String defaultSystemType = "android";
     private MyReceiver receiver;
     private IntentFilter intentFilter;
     private ArrayList<String> buildTypes = new ArrayList<>();
     private int pageIndex = 1;
-    private int currentPageIndex;
-    public static final int perPageCount = 20;
     private static int dataListSize;
 
     @Override
@@ -285,8 +279,8 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
 
 
     private void disableFilter(boolean flag) {
-        tvBuildType.setClickable(!flag);
-        tvPackageName.setClickable(!flag);
+        filterBuildType.setClickable(!flag);
+        filterPackageName.setClickable(!flag);
     }
 
     @Override
@@ -297,13 +291,13 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         presenter.getPackageList();
     }
 
-    @OnClick({R.id.tv_buildType, R.id.tv_packageName})
+    @OnClick({R.id.filter_buildType, R.id.filter_packageName})
     public void onViewClicked(View view) {
         switch (view.getId()) {
-            case R.id.tv_buildType:
+            case R.id.filter_buildType:
                 showBottomSheetDialog(buildTypes);
                 break;
-            case R.id.tv_packageName:
+            case R.id.filter_packageName:
                 showBottomSheetDialog(pkgList);
                 break;
             default:
@@ -338,13 +332,15 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                 adapter.notifyItemMoved(0, apkList.size());
                 if (position == 0) {
                     selectedVersionType = null;
-                    tvBuildType.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.titleTextDefaultColor));
+                    filterBuildType.setHighlight(false);
+//                    filterBuildType.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.titleTextDefaultColor));
 
                 } else {
                     selectedVersionType = buildTypes.get(position);
-                    tvBuildType.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.titleTextSelectedColor));
+                    filterBuildType.setHighlight(false);
+//                    tvBuildType.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.titleTextSelectedColor));
                 }
-                tvBuildType.setText(buildTypes.get(position));
+                filterBuildType.setTitle(buildTypes.get(position));
                 doFilter(defaultSystemType, selectedApplicationID, selectedVersionType);
             }
 
@@ -367,13 +363,16 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                 apkList.clear();
                 if (position == 0) {
                     selectedApplicationID = null;
-                    tvPackageName.setTextColor(view.getContext().getResources().getColor(R.color.titleTextDefaultColor));
+                    filterPackageName.setHighlight(false);
+//                    tvPackageName.setTextColor(view.getContext().getResources().getColor(R.color.titleTextDefaultColor));
                 } else {
                     selectedApplicationID = dataSource.get(position).getId();
-                    tvPackageName.setTextColor(view.getContext().getResources().getColor(R.color.titleTextSelectedColor));
+                    filterPackageName.setHighlight(true);
+//                    tvPackageName.setTextColor(view.getContext().getResources().getColor(R.color.titleTextSelectedColor));
                 }
                 selectedApplicationName = dataSource.get(position).getApplication_name();
-                tvPackageName.setText(dataSource.get(position).getApplication_name());
+                filterPackageName.setTitle(dataSource.get(position).getApplication_name());
+//                tvPackageName.setText(dataSource.get(position).getApplication_name());
                 doFilter(defaultSystemType, selectedApplicationID, selectedVersionType);
             }
 
@@ -393,7 +392,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         btnCancel = view.findViewById(R.id.btn_cancel);
         btnCancel.setOnClickListener(this);
         bottomRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        bottomRecyclerView.addItemDecoration(new CustomItemDecoration(15,0,0,10));
+        bottomRecyclerView.addItemDecoration(new CustomItemDecoration(15, 0, 0, 10));
     }
 
     @Override

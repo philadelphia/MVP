@@ -1,13 +1,10 @@
 package com.meiliwu.installer.view;
 
-import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.meiliwu.installer.R;
@@ -33,6 +30,15 @@ public class FilterTabItemView extends RelativeLayout {
         View view = LayoutInflater.from(context).inflate(R.layout.view_filter_tab_item, this);
         ButterKnife.bind(this, view);
     }
+
+    public FilterTabItemView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public FilterTabItemView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
 
     public void setTitle(String title) {
         this.mTitle = title;
