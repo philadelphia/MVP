@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:textColor="@color/titleTextDefaultColor"
         android:textSize="@dimen/font_size_normal"
-        android:drawableRight="@mipmap/choose_default"
+        android:drawableRight="@drawable/level_filter"
         android:drawablePadding="@dimen/dimen_dp_8"
         android:maxLines="1"
         android:paddingLeft="@dimen/dimen_dp_2"

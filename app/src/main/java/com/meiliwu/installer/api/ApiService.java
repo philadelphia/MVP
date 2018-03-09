@@ -15,9 +15,9 @@ import rx.Observable;
  */
 
 public interface ApiService {
-    /*获取所有APK列表*/
+    /*获取所有APP列表*/
     @GET("/applicationClient/getApplications")
-    Observable<Result<APKEntity>> getPackageList();
+    Observable<Result<PackageEntity>> getPackageList();
 
     /*获取指定平台的特定APK(release/debug)列表*/
     @GET("/applicationClient/getApplicationVersions")

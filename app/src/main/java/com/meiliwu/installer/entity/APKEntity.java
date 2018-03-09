@@ -1,45 +1,54 @@
 package com.meiliwu.installer.entity;
 
-import com.google.auto.value.AutoValue;
-
-import java.util.List;
-
 /**
  * Author:  ZhangTao
  * Date: 2018/3/6.
  */
 
-public class APKEntity extends PackageEntity {
+public class APKEntity {
     /**
-     * id : 461
-     * version_name : 3.3.0
-     * application_id : 2
-     * application_name : 美丽屋C端
+     * id : 464
+     * version_name : 4.9.3
+     * application_id : 1
+     * application_name : 美丽屋经纪人
      * system_name : android
-     * version_describe : 优化价格筛选自定义使用体验
-     * download_url : http://cdn.mse.mlwplus.com/meiliwu/applications/2018/02/01/17/05/rent_customer_alibaba_release_3.3.0.apk
+     * version_describe : null
+     * download_url : http://cdn.mse.mlwplus.com/meiliwu/applications/2018/02/02/18/37/mlw_release_V4.9.3_2018_02_02_18.apk
      * plist_url :
      * version_type : 正式
      * if_deleted : 0
-     * status : 0
-     * create_time : 1517475979
-     * update_time : 1517475979
-     * update_type : 0
-     * uid : 5410123e44e8afbe40558c8c
-     * icon_url : http://cdn.mse.mlwplus.com/meiliwu/applications/2018/03/05/18/23/meiliwu.png
+     * status : 1
+     * create_time : 1517550821
+     * update_time : 1517567888
+     * update_type : 1
+     * uid : 50200d0ba8207c4b80a17744
+     * icon_url : http://cdn.mse.mlwplus.com/meiliwu/applications/2018/03/05/18/23/jingjiren.png
      */
 
+    private String id;
     private String version_name;
     private String application_id;
+    private String application_name;
     private String system_name;
-    private String version_describe;
+    private Object version_describe;
     private String download_url;
     private String plist_url;
     private String version_type;
+    private String if_deleted;
     private String status;
+    private String create_time;
+    private String update_time;
     private String update_type;
     private String uid;
+    private String icon_url;
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getVersion_name() {
         return version_name;
@@ -57,6 +66,14 @@ public class APKEntity extends PackageEntity {
         this.application_id = application_id;
     }
 
+    public String getApplication_name() {
+        return application_name;
+    }
+
+    public void setApplication_name(String application_name) {
+        this.application_name = application_name;
+    }
+
     public String getSystem_name() {
         return system_name;
     }
@@ -65,11 +82,11 @@ public class APKEntity extends PackageEntity {
         this.system_name = system_name;
     }
 
-    public String getVersion_describe() {
+    public Object getVersion_describe() {
         return version_describe;
     }
 
-    public void setVersion_describe(String version_describe) {
+    public void setVersion_describe(Object version_describe) {
         this.version_describe = version_describe;
     }
 
@@ -97,12 +114,36 @@ public class APKEntity extends PackageEntity {
         this.version_type = version_type;
     }
 
+    public String getIf_deleted() {
+        return if_deleted;
+    }
+
+    public void setIf_deleted(String if_deleted) {
+        this.if_deleted = if_deleted;
+    }
+
     public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCreate_time() {
+        return create_time;
+    }
+
+    public void setCreate_time(String create_time) {
+        this.create_time = create_time;
+    }
+
+    public String getUpdate_time() {
+        return update_time;
+    }
+
+    public void setUpdate_time(String update_time) {
+        this.update_time = update_time;
     }
 
     public String getUpdate_type() {
@@ -120,6 +161,15 @@ public class APKEntity extends PackageEntity {
     public void setUid(String uid) {
         this.uid = uid;
     }
+
+    public String getIcon_url() {
+        return icon_url;
+    }
+
+    public void setIcon_url(String icon_url) {
+        this.icon_url = icon_url;
+    }
+
 
 
 }

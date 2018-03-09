@@ -17,7 +17,7 @@ import butterknife.ButterKnife;
  */
 public class FilterTabItemView extends RelativeLayout {
 
-    @BindView(R.id.tv_filter_title)
+ @BindView(R.id.tv_filter_title)
     TextView tvFilterTitle;
 
     private Context mContext;
@@ -33,10 +33,16 @@ public class FilterTabItemView extends RelativeLayout {
 
     public FilterTabItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
+        View view = LayoutInflater.from(context).inflate(R.layout.view_filter_tab_item, this);
+        ButterKnife.bind(this, view);
     }
 
     public FilterTabItemView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mContext = context;
+        View view = LayoutInflater.from(context).inflate(R.layout.view_filter_tab_item, this);
+        ButterKnife.bind(this, view);
     }
 
 

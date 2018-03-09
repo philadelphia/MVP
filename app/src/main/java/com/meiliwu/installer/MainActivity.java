@@ -32,6 +32,7 @@ import com.meiliwu.installer.adapter.CustomRecyclerAdapter;
 import com.meiliwu.installer.adapter.OnRecyclerViewItemClickListener;
 import com.meiliwu.installer.adapter.WrapContentLinearLayoutManager;
 import com.meiliwu.installer.entity.APKEntity;
+import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.mvp.MvpContract;
 import com.meiliwu.installer.mvp.Presenter;
 import com.meiliwu.installer.rx.ResponseErrorListener;
@@ -66,9 +67,9 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     private RecyclerView bottomRecyclerView;
     private Button btnCancel;
     private CustomRecyclerAdapter<APKEntity> adapter;
-    private BottomSheetRecyclerAdapter<APKEntity> bottomSheetAdapter;
+    private BottomSheetRecyclerAdapter<PackageEntity> bottomSheetAdapter;
     private List<APKEntity> apkList = new ArrayList<>();
-    private List<APKEntity> pkgList = new ArrayList<>();
+    private List<PackageEntity> pkgList = new ArrayList<>();
     private Presenter presenter;
     private BottomSheetDialog bottomSheetDialog;
     private String selectedVersionType;
@@ -92,7 +93,8 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         initData();
         initAdapter();
 
-
+        filterBuildType.setTitle("全部");
+        filterPackageName.setTitle("全部");
         recyclerView.setLayoutManager(new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
@@ -174,9 +176,9 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
             }
         };
 
-        bottomSheetAdapter = new BottomSheetRecyclerAdapter<APKEntity>(pkgList) {
+        bottomSheetAdapter = new BottomSheetRecyclerAdapter<PackageEntity>(pkgList) {
             @Override
-            public void convert(CommonViewHolder holder, APKEntity item, int position) {
+            public void convert(CommonViewHolder holder, PackageEntity item, int position) {
                 if (item.getApplication_name().equals(selectedApplicationName)) {
                     holder.setTextColor(R.id.tv_packageName, ContextCompat.getColor(MainActivity.this, R.color.textSelectedColor));
                 }
@@ -193,12 +195,12 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     }
 
     @Override
-    public void onLoadPackageListSuccess(List<APKEntity> dataList) {
+    public void onLoadPackageListSuccess(List<PackageEntity> dataList) {
         Log.i(TAG, "onLoadPackageListSuccess: " + dataList.size());
         disableFilter(false);
         swipeRefreshLayout.setRefreshing(false);
         pkgList.clear();
-        APKEntity apkEntity = new APKEntity();
+        PackageEntity apkEntity = new PackageEntity();
         apkEntity.setApplication_name("全部");
         pkgList.add(0, apkEntity);
         pkgList.addAll(dataList);
@@ -288,7 +290,8 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         Log.i(TAG, "onRefresh: ");
         /*清空已加载的apk数据*/
         apkList.clear();
-        presenter.getPackageList();
+        pageIndex = 1;
+        presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
     }
 
     @OnClick({R.id.filter_buildType, R.id.filter_packageName})
@@ -333,12 +336,10 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                 if (position == 0) {
                     selectedVersionType = null;
                     filterBuildType.setHighlight(false);
-//                    filterBuildType.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.titleTextDefaultColor));
 
                 } else {
                     selectedVersionType = buildTypes.get(position);
-                    filterBuildType.setHighlight(false);
-//                    tvBuildType.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.titleTextSelectedColor));
+                    filterBuildType.setHighlight(true);
                 }
                 filterBuildType.setTitle(buildTypes.get(position));
                 doFilter(defaultSystemType, selectedApplicationID, selectedVersionType);
@@ -353,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     }
 
     /*APK筛选*/
-    public void showBottomSheetDialog(final List<APKEntity> dataSource) {
+    public void showBottomSheetDialog(final List<PackageEntity> dataSource) {
         initBottomSheetDialog();
 
         bottomRecyclerView.setAdapter(bottomSheetAdapter);
@@ -364,15 +365,12 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                 if (position == 0) {
                     selectedApplicationID = null;
                     filterPackageName.setHighlight(false);
-//                    tvPackageName.setTextColor(view.getContext().getResources().getColor(R.color.titleTextDefaultColor));
                 } else {
                     selectedApplicationID = dataSource.get(position).getId();
                     filterPackageName.setHighlight(true);
-//                    tvPackageName.setTextColor(view.getContext().getResources().getColor(R.color.titleTextSelectedColor));
                 }
                 selectedApplicationName = dataSource.get(position).getApplication_name();
                 filterPackageName.setTitle(dataSource.get(position).getApplication_name());
-//                tvPackageName.setText(dataSource.get(position).getApplication_name());
                 doFilter(defaultSystemType, selectedApplicationID, selectedVersionType);
             }
 

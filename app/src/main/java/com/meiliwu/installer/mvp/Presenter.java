@@ -36,18 +36,18 @@ public class Presenter {
 
     public void getPackageList() {
         Log.i(TAG, "getPackageList: ");
-        Observable<Result<APKEntity>> observable = model.getPackageList();
-        Subscription subscribe = observable.subscribe(new RxErrorHandlerSubscriber<Result<APKEntity>>(rxErrorHandler) {
+        Observable<Result<PackageEntity>> observable = model.getPackageList();
+        Subscription subscribe = observable.subscribe(new RxErrorHandlerSubscriber<Result<PackageEntity>>(rxErrorHandler) {
             @Override
             public void onStart() {
                 super.onStart();
             }
 
             @Override
-            public void onNext(Result<APKEntity> apkEntityResult) {
-                if (apkEntityResult.getCode() == 0) {
-                    if (apkEntityResult.getData().getData().size() > 0) {
-                        view.onLoadPackageListSuccess(apkEntityResult.getData().getData());
+            public void onNext(Result<PackageEntity> pkgEntity) {
+                if (pkgEntity.getCode() == 0) {
+                    if (pkgEntity.getData().getData().size() > 0) {
+                        view.onLoadPackageListSuccess(pkgEntity.getData().getData());
                     }
                 } else {
                     view.onLoadPackageListFailed();
@@ -59,10 +59,11 @@ public class Presenter {
     }
 
     public void getSpecifiedAPKVersionList(String system_name, String application_id, String version_type, int pageIndex) {
-        Log.i(TAG, "system_name == :  " + system_name);
-        Log.i(TAG, "application_id: " + application_id);
-        Log.i(TAG, "version_type: " + version_type);
-        Log.i(TAG, "pageIndex: " + pageIndex);
+        Log.i(TAG, "getSpecifiedAPKVersionList: ");
+        Log.d(TAG, "system_name == :  " + system_name);
+        Log.d(TAG, "application_id: " + application_id);
+        Log.d(TAG, "version_type: " + version_type);
+        Log.d(TAG, "pageIndex: " + pageIndex);
         Observable<Result<APKEntity>> specifiedAPKVersionList = model.getSpecifiedAPKVersionList(system_name, application_id, version_type, pageIndex);
         Subscription subscribe = specifiedAPKVersionList.subscribe(new RxErrorHandlerSubscriber<Result<APKEntity>>(rxErrorHandler) {
             @Override
