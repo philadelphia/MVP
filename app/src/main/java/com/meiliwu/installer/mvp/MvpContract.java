@@ -18,7 +18,7 @@ import rx.Observable;
 
 public class MvpContract {
     public interface IView {
-        void onLoadPackageListSuccess(List<APKEntity> dataSource);
+        void onLoadPackageListSuccess(List<PackageEntity> dataSource);
 
         void onLoadPackageListFailed();
 
@@ -38,7 +38,7 @@ public class MvpContract {
     }
 
     public interface IModel {
-        Observable<Result<APKEntity>> getPackageList();
+        Observable<Result<PackageEntity>> getPackageList();
 
         Observable<Result<APKEntity>> getSpecifiedAPKVersionList(String system_name, String application_id, String version_type, int pageIndex);
     }

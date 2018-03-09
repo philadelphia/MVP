@@ -18,8 +18,8 @@ import rx.Observable;
 
 public class Model implements MvpContract.IModel {
     @Override
-    public Observable<Result<APKEntity>> getPackageList() {
-        return RetrofitUtil.getInstance().getRetrofit().create(ApiService.class).getPackageList().compose(RxsRxSchedulers.<Result<APKEntity>>io_main());
+    public Observable<Result<PackageEntity>> getPackageList() {
+        return RetrofitUtil.getInstance().getRetrofit().create(ApiService.class).getPackageList().compose(RxsRxSchedulers.<Result<PackageEntity>>io_main());
     }
 
     @Override
