@@ -24,6 +24,8 @@ public class DownloadService extends IntentService {
             "com.meiliwu.installer.service.STATUS";
     public static final String FILE_NAME = "fileName";
 
+    public static final String DOWNLOAD_RESULT = "DownLoadResult";
+
     private LocalBroadcastManager mLocalBroadcastManager;
 
     public DownloadService() {
@@ -40,10 +42,10 @@ public class DownloadService extends IntentService {
         DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 
-        //指定APK缓存路径和应用名称，可在SD卡/Android/data/包名/file/Download文件夹中查看
+        //指定APK缓存路径和应用名称，可在SD卡/storage/sdcard0/Download文件夹中查看
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-        //设置网络下载环境为wifi
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+        //设置网络下载环境为wifi和Mobile环境
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
         //设置下载文件的mineType。因为下载管理Ui中点击某个已下载完成文件及下载完成点击通知栏提示都会根据mimeType去打开文件，所以我们可以利用这个属性。
         request.setMimeType("application/vnd.android.package-archive");
         //设置显示通知栏，下载完成后通知栏自动消失
@@ -51,32 +53,28 @@ public class DownloadService extends IntentService {
         //设置通知栏标题
         request.setTitle(fileName);
         request.setDescription("应用正在下载");
+        //设置是否允许漫游连接
         request.setAllowedOverRoaming(false);
         //获得唯一下载id
         long requestId = downloadManager.enqueue(request);
         //将id放进Intent
         Intent localIntent = new Intent(BROADCAST_ACTION);
-        localIntent.putExtra(EXTENDED_DATA_STATUS, requestId);
         localIntent.putExtra(DownloadManager.EXTRA_DOWNLOAD_ID, requestId);
         localIntent.putExtra(FILE_NAME, fileName);
         //查询下载信息
         DownloadManager.Query query = new DownloadManager.Query();
         query.setFilterById(requestId);
         try {
-            boolean isGoging = true;
-            while (isGoging) {
+            boolean isGoing = true;
+            while (isGoing) {
                 Cursor cursor = downloadManager.query(query);
                 if (cursor != null && cursor.moveToFirst()) {
                     int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                    switch (status) {
-                        //如果下载状态为成功
-                        case DownloadManager.STATUS_SUCCESSFUL:
-                            isGoging = false;
-                            //调用LocalBroadcastManager.sendBroadcast将intent传递回去
-                            mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
-                            mLocalBroadcastManager.sendBroadcast(localIntent);
-                            break;
-                    }
+                    mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
+                    //调用LocalBroadcastManager.sendBroadcast将intent传递回去
+                    mLocalBroadcastManager.sendBroadcast(localIntent);
+                    localIntent.putExtra(DOWNLOAD_RESULT, status);
+
                 }
 
                 if (cursor != null) {

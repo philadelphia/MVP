@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.meiliwu.installer.adapter.BottomSheetRecyclerAdapter;
@@ -212,14 +213,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         Log.i(TAG, "onLoadAPKListSuccess:dataSource.size() ==  " + dataSource.size());
         adapter.setLoadState(adapter.LOADING_COMPLETE);
         apkList.addAll(dataSource);
-        for (int i = 0; i < apkList.size(); i++) {
-            APKEntity apkEntity = apkList.get(i);
-            Log.d(TAG, "onLoadAPKListSuccess: ApplicationName = " + apkEntity.getApplication_name());
-            Log.d(TAG, "onLoadAPKListSuccess: versionName = " + apkEntity.getVersion_name());
-            Log.d(TAG, "onLoadAPKListSuccess: VersionType = " + apkEntity.getVersion_type());
-        }
-//        adapter.notifyItemRangeInserted(apkList.size(), dataSource.size());
-//        adapter.notifyDataSetChanged();
+        adapter.notifyItemRangeInserted(apkList.size(), dataSource.size());
         if (apkList.size() < dataListSize) {
             pageIndex++;
         } else {
@@ -254,7 +248,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     public void notifyDataSize(int count) {
         dataListSize = count;
         Log.i(TAG, "notifyDataSize:dataListSize =  " + dataListSize);
-        Log.i(TAG, "notifyDataSize:pageIndex =  " + pageIndex);
     }
 
     @Override
@@ -439,17 +432,43 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     private class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            long data = intent.getLongExtra(DownloadService.EXTENDED_DATA_STATUS, 0L);
-            Log.i(TAG, "requestID == " + String.valueOf(data));
             String fileName = intent.getStringExtra(DownloadService.FILE_NAME);
-            Log.i(TAG, "onReceive:fileName == " + fileName);
-            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-            intent = new Intent(Intent.ACTION_VIEW);
+
+            switch (intent.getIntExtra(DownloadService.DOWNLOAD_RESULT, -1)) {
+                case DownloadManager.STATUS_SUCCESSFUL:
+                   installAPK(fileName);
+                    break;
+                case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
+                    Toast.makeText(MainActivity.this, "file:" + fileName + "exists", Toast.LENGTH_SHORT).show();
+                    break;
+                case DownloadManager.ERROR_INSUFFICIENT_SPACE:
+                    Toast.makeText(MainActivity.this, "存储空间不足......", Toast.LENGTH_SHORT).show();
+                    break;
+
+                case DownloadManager.STATUS_FAILED:
+                    Toast.makeText(MainActivity.this, "下载失败......", Toast.LENGTH_SHORT).show();
+                    break;
+                case -1:
+                    break;
+
+            }
+
+        }
+
+        public void installAPK(String fileName){
+            Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Uri uri = Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + fileName));
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
+            Log.i(TAG, "installAPK: " + file.getAbsolutePath());
+            Log.i(TAG, "installAPK: " + file.getParentFile().getAbsolutePath());
+
+//            Uri uri = FileProvider.getUriForFile(MainActivity.this, "com.meiliwu.installer.fileprovider", file);//通过FileProvider创建一个content类型的Uri
+            Uri uri = Uri.fromFile(file);
+            Log.i(TAG, "installAPK: uri ==  " + uri);
             intent.setDataAndType(uri, "application/vnd.android.package-archive");
             startActivity(intent);
-
         }
     }
 }
