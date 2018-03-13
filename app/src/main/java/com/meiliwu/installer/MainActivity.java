@@ -11,30 +11,24 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.design.widget.BottomSheetDialog;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.meiliwu.installer.adapter.BottomSheetRecyclerAdapter;
 import com.meiliwu.installer.adapter.CommonViewHolder;
-import com.meiliwu.installer.adapter.CustomItemDecoration;
 import com.meiliwu.installer.adapter.CustomRecyclerAdapter;
-import com.meiliwu.installer.adapter.OnRecyclerViewItemClickListener;
 import com.meiliwu.installer.adapter.WrapContentLinearLayoutManager;
 import com.meiliwu.installer.entity.APKEntity;
+import com.meiliwu.installer.entity.BuildType;
+import com.meiliwu.installer.entity.ISelectable;
 import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.mvp.MvpContract;
 import com.meiliwu.installer.mvp.Presenter;
@@ -43,6 +37,7 @@ import com.meiliwu.installer.rx.RxErrorHandler;
 import com.meiliwu.installer.service.DownloadService;
 import com.meiliwu.installer.utils.EndlessRecyclerOnScrollListener;
 import com.meiliwu.installer.view.FilterTabItemView;
+import com.meiliwu.installer.view.CustomBottomSheetDialog;
 import com.meiliwu.installer.view.StatusLayout;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -56,7 +51,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.functions.Action1;
 
-public class MainActivity extends AppCompatActivity implements MvpContract.IView, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, ResponseErrorListener {
+public class MainActivity extends AppCompatActivity implements MvpContract.IView, SwipeRefreshLayout.OnRefreshListener, ResponseErrorListener, CustomBottomSheetDialog.OnItemClickListener {
     private static final String TAG = "MainActivity";
     @BindView(R.id.statusLayout)
     StatusLayout statusLayout;
@@ -68,24 +63,19 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     FilterTabItemView filterBuildType;
     @BindView(R.id.filter_packageName)
     FilterTabItemView filterPackageName;
-
-    private RecyclerView bottomRecyclerView;
-    private Button btnCancel;
     private CustomRecyclerAdapter<APKEntity> adapter;
-    private BottomSheetRecyclerAdapter<PackageEntity> bottomSheetAdapter;
     private final List<APKEntity> apkList = new ArrayList<>();
     private final List<PackageEntity> pkgList = new ArrayList<>();
     private Presenter presenter;
-    private BottomSheetDialog bottomSheetDialog;
     private String selectedVersionType;
-    private int selectedVersionTypeIndex;
     private String selectedApplicationID;
-    private String selectedApplicationName = "全部";
     private static final String defaultSystemType = "android";
     private MyReceiver receiver;
-    private final ArrayList<String> buildTypes = new ArrayList<>();
+    private final ArrayList<BuildType> buildTypes = new ArrayList<>();
     private int pageIndex = 1;
     private static int dataListSize;
+    private CustomBottomSheetDialog packageBottomSheetDialog;
+    private CustomBottomSheetDialog buildTypeBottomSheetDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,11 +86,17 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         swipeRefreshLayout.setOnRefreshListener(this);
         initData();
         requestPermissions();
+        registerReceiver();
         initAdapter();
+        disableFilter(true);
+
+        //请求数据
+        presenter.getPackageList();
+        presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
 
         filterBuildType.setTitle("全部");
         filterPackageName.setTitle("全部");
-        recyclerView.setLayoutManager(new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
             @Override
@@ -122,6 +118,13 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        presenter.onDestroy();
+    }
+
     private void requestPermissions() {
         final RxPermissions rxPermissions = new RxPermissions(this);
         rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -136,37 +139,21 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                                     .setTitle("提示")
                                     .setMessage("请务必给与存储权限，以便您的使用")
                                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    requestPermissions();
-                                }
-                            });
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            requestPermissions();
+                                        }
+                                    });
                             builder.create().show();
                         }
                     }
                 });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        disableFilter(true);
-        registerReceiver();
-        presenter.getPackageList();
-        presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(receiver);
-        presenter.onDestroy();
-    }
-
     private void initData() {
-        buildTypes.add("全部");
-        buildTypes.add("正式");
-        buildTypes.add("测试");
+        buildTypes.add(new BuildType("全部"));
+        buildTypes.add(new BuildType("正式"));
+        buildTypes.add(new BuildType("测试"));
     }
 
     private void initAdapter() {
@@ -190,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                         String[] split = apkEntity.getDownload_url().split("/");
                         List<String> strings = Arrays.asList(split);
                         strings.get(strings.size() - 1);
-                        installAPK(apkEntity.getDownload_url(), strings.get(strings.size() - 1));
+                        downLoadAPK(apkEntity.getDownload_url(), strings.get(strings.size() - 1));
                     }
                 }, R.id.btn_downLoad);
             }
@@ -205,23 +192,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                 return R.layout.layout_footer_view;
             }
         };
-
-        bottomSheetAdapter = new BottomSheetRecyclerAdapter<PackageEntity>(pkgList) {
-            @Override
-            public void convert(CommonViewHolder holder, PackageEntity item, int position) {
-                if (item.getApplication_name().equals(selectedApplicationName)) {
-                    holder.setTextColor(R.id.tv_packageName, ContextCompat.getColor(MainActivity.this, R.color.textSelectedColor));
-                }
-
-                holder.setText(R.id.tv_packageName, item.getApplication_name());
-            }
-
-            @Override
-            public int getItemLayoutID() {
-                return R.layout.layout_bottom_sheet_dialog_item;
-            }
-
-        };
     }
 
     @Override
@@ -230,16 +200,17 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         disableFilter(false);
         swipeRefreshLayout.setRefreshing(false);
         pkgList.clear();
-        PackageEntity apkEntity = new PackageEntity();
-        apkEntity.setApplication_name("全部");
-        pkgList.add(0, apkEntity);
+        PackageEntity packageEntity = new PackageEntity();
+        packageEntity.setApplication_name("全部");
+        pkgList.add(0, packageEntity);
         pkgList.addAll(dataList);
-        bottomSheetAdapter.notifyDataSetChanged();
+        packageBottomSheetDialog.notifyDataSetChanged(dataList);
     }
 
     @Override
     public void onLoadAPKListSuccess(List<APKEntity> dataSource) {
         Log.i(TAG, "onLoadAPKListSuccess:dataSource.size() ==  " + dataSource.size());
+        swipeRefreshLayout.setRefreshing(false);
         adapter.setLoadState(adapter.LOADING_COMPLETE);
         apkList.addAll(dataSource);
         adapter.notifyItemRangeInserted(apkList.size(), dataSource.size());
@@ -254,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     @Override
     public void onLoadPackageListFailed() {
         Log.i(TAG, "onLoadPackageListFailed: ");
-//        disableFilter(true);
+        disableFilter(true);
         swipeRefreshLayout.setRefreshing(false);
     }
 
@@ -268,9 +239,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                 presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
             }
         });
-//        apkList.clear();
-//        adapter.notifyDataSetChanged();
-
     }
 
     @Override
@@ -287,7 +255,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     @Override
     public void showErrorView() {
         statusLayout.showErrorView();
-
     }
 
     @Override
@@ -313,6 +280,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         /*清空已加载的apk数据*/
         apkList.clear();
         pageIndex = 1;
+        presenter.getPackageList();
         presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
     }
 
@@ -331,108 +299,43 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     }
 
     /*正式/测试筛选*/
-    private void showBottomSheetDialog(final ArrayList<String> buildTypes) {
-        initBottomSheetDialog();
-        BottomSheetRecyclerAdapter<String> bottomSheetAdapter = new BottomSheetRecyclerAdapter<String>(buildTypes) {
+    private void showBottomSheetDialog(final ArrayList<BuildType> buildTypes) {
+        if (buildTypeBottomSheetDialog == null){
+            buildTypeBottomSheetDialog = new CustomBottomSheetDialog(this);
+        }
+        buildTypeBottomSheetDialog.setDataList(buildTypes);
+        buildTypeBottomSheetDialog.show();
+        buildTypeBottomSheetDialog.setOnItemClickListener(new CustomBottomSheetDialog.OnItemClickListener() {
             @Override
-            public void convert(CommonViewHolder holder, String item, int position) {
-                if (position == selectedVersionTypeIndex) {
-                    holder.setTextColor(R.id.tv_packageName, ContextCompat.getColor(MainActivity.this, R.color.textSelectedColor));
-                }
-                holder.setText(R.id.tv_packageName, item);
-
-            }
-
-            @Override
-            public int getItemLayoutID() {
-                return R.layout.layout_bottom_sheet_dialog_item;
-            }
-
-        };
-        bottomRecyclerView.addOnItemTouchListener(new OnRecyclerViewItemClickListener(bottomRecyclerView) {
-            @Override
-            public void onItemClick(View view, int position) {
-                selectedVersionTypeIndex = position;
+            public void ontItemClick(View view, ISelectable packageEntity, int position) {
                 apkList.clear();
-                adapter.notifyItemMoved(0, apkList.size());
-                if (position == 0) {
+                if (position == 0){
                     selectedVersionType = null;
                     filterBuildType.setHighlight(false);
-
-                } else {
-                    selectedVersionType = buildTypes.get(position);
+                }else {
+                    selectedVersionType = packageEntity.getName();
                     filterBuildType.setHighlight(true);
                 }
-                filterBuildType.setTitle(buildTypes.get(position));
+                filterBuildType.setTitle(packageEntity.getName());
                 doFilter(selectedApplicationID, selectedVersionType);
-            }
-
-            @Override
-            public void onItemLongClick(View view, int position) {
-
+                buildTypeBottomSheetDialog.dismiss();
             }
         });
-        bottomRecyclerView.setAdapter(bottomSheetAdapter);
     }
 
     /*APK筛选*/
     private void showBottomSheetDialog(final List<PackageEntity> dataSource) {
-        initBottomSheetDialog();
-
-        bottomRecyclerView.setAdapter(bottomSheetAdapter);
-        bottomRecyclerView.addOnItemTouchListener(new OnRecyclerViewItemClickListener(bottomRecyclerView) {
-            @Override
-            public void onItemClick(View view, int position) {
-                apkList.clear();
-                if (position == 0) {
-                    selectedApplicationID = null;
-                    filterPackageName.setHighlight(false);
-                } else {
-                    selectedApplicationID = dataSource.get(position).getId();
-                    filterPackageName.setHighlight(true);
-                }
-                selectedApplicationName = dataSource.get(position).getApplication_name();
-                filterPackageName.setTitle(dataSource.get(position).getApplication_name());
-                doFilter(selectedApplicationID, selectedVersionType);
-            }
-
-            @Override
-            public void onItemLongClick(View view, int position) {
-
-            }
-        });
-    }
-
-    private void initBottomSheetDialog() {
-        bottomSheetDialog = new BottomSheetDialog(this);
-        View view = LayoutInflater.from(this).inflate(R.layout.laytou_bottom_sheet_dialog, null);
-        bottomSheetDialog.setContentView(view);
-        bottomSheetDialog.show();
-        bottomRecyclerView = view.findViewById(R.id.bottom_recyclerView);
-        btnCancel = view.findViewById(R.id.btn_cancel);
-        btnCancel.setOnClickListener(this);
-        bottomRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        bottomRecyclerView.addItemDecoration(new CustomItemDecoration(15, 0, 0, 10));
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_cancel:
-                if (bottomSheetDialog != null) {
-                    bottomSheetDialog.dismiss();
-                }
-                break;
-            default:
-                break;
-
+        if (packageBottomSheetDialog == null){
+            packageBottomSheetDialog = new CustomBottomSheetDialog(this);
         }
+        packageBottomSheetDialog.setDataList(dataSource);
+        packageBottomSheetDialog.show();
+        packageBottomSheetDialog.setOnItemClickListener(this);
     }
 
     private void doFilter(String application_id, String version_type) {
-        if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
-            bottomSheetDialog.dismiss();
-        }
+        Log.i(TAG, "application_id == " + application_id);
+        Log.i(TAG, "version_type == " + version_type);
         pageIndex = 1;
         presenter.getSpecifiedAPKVersionList(MainActivity.defaultSystemType, application_id, version_type, pageIndex);
     }
@@ -445,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
 
     }
 
-    private void installAPK(String url, String fileName) {
+    private void downLoadAPK(String url, String fileName) {
         Intent serviceIntent = new Intent(this, DownloadService.class);
         serviceIntent.setData(Uri.parse(url));
         serviceIntent.putExtra(DownloadService.FILE_NAME, fileName);
@@ -456,6 +359,23 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     public void handlerResponseError(Context context, Exception e) {
         Log.i(TAG, "handlerResponseError:getCause " + e.getCause());
         Log.i(TAG, "handlerResponseError:getMessage " + e.getMessage());
+    }
+
+    @Override
+    public void ontItemClick(View view, ISelectable entity, int position) {
+        apkList.clear();
+        if (entity instanceof PackageEntity){
+            if (position == 0) {
+                selectedApplicationID = null;
+                filterPackageName.setHighlight(false);
+            } else {
+                selectedApplicationID = entity.getID();
+                filterPackageName.setHighlight(true);
+            }
+            filterPackageName.setTitle(entity.getName());
+            doFilter(selectedApplicationID, selectedVersionType);
+        }
+        packageBottomSheetDialog.dismiss();
     }
 
     private class MyReceiver extends BroadcastReceiver {

@@ -1,12 +1,7 @@
 package com.meiliwu.installer.entity;
 
 
-import com.google.auto.value.AutoValue;
-
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -14,7 +9,7 @@ import java.util.Locale;
  * Date: 2018/3/5.
  */
 
-public class PackageEntity {
+public class PackageEntity implements ISelectable {
 
     /**
      * id : 12
@@ -28,24 +23,6 @@ public class PackageEntity {
      * update_time : 1512006618
      */
 
-    /**
-     * id : 461
-     * version_name : 3.3.0
-     * application_id : 2
-     * application_name : 美丽屋C端
-     * system_name : android
-     * version_describe : 优化价格筛选自定义使用体验
-     * download_url : http://cdn.mse.mlwplus.com/meiliwu/applications/2018/02/01/17/05/rent_customer_alibaba_release_3.3.0.apk
-     * plist_url :
-     * version_type : 正式
-     * if_deleted : 0
-     * status : 0
-     * create_time : 1517475979
-     * update_time : 1517475979
-     * update_type : 0
-     * uid : 5410123e44e8afbe40558c8c
-     * icon_url : http://cdn.mse.mlwplus.com/meiliwu/applications/2018/03/05/18/23/meiliwu.png
-     */
 
     private String id;
     private String application_name;
@@ -144,5 +121,15 @@ public class PackageEntity {
                 ", create_time='" + create_time + '\'' +
                 ", update_time='" + update_time + '\'' +
                 '}';
+    }
+
+    @Override
+    public String getID() {
+        return this.getId();
+    }
+
+    @Override
+    public String getName() {
+        return this.getApplication_name();
     }
 }
