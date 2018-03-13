@@ -34,25 +34,25 @@
             android:name=".service.DownloadService"
             android:exported="false" />
 
-        <!--<receiver android:name=".view.FilterTabItemView">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />-->
-            <!--</intent-filter>-->
-
-            <!--<meta-data-->
-                <!--android:name="android.appwidget.provider"-->
-                <!--android:resource="@xml/filter_tab_item_view_info" />-->
-        <!--</receiver>-->
-
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.meiliwu.installer.fileprovider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/shared_file_path" />
         </provider>
+
+        <receiver android:name=".view.CustomBottomSheetDialog">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/custom_bottom_sheet_dialog_info" />
+        </receiver>
     </application>
 
 </manifest>

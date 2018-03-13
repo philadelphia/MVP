@@ -1,11 +1,14 @@
 package com.meiliwu.installer;
 
-import android.app.DownloadManager;
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.BottomSheetDialog;
@@ -23,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.meiliwu.installer.adapter.BottomSheetRecyclerAdapter;
@@ -42,6 +44,7 @@ import com.meiliwu.installer.service.DownloadService;
 import com.meiliwu.installer.utils.EndlessRecyclerOnScrollListener;
 import com.meiliwu.installer.view.FilterTabItemView;
 import com.meiliwu.installer.view.StatusLayout;
+import com.tbruyelle.rxpermissions.RxPermissions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,6 +54,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import rx.functions.Action1;
 
 public class MainActivity extends AppCompatActivity implements MvpContract.IView, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, ResponseErrorListener {
     private static final String TAG = "MainActivity";
@@ -69,8 +73,8 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     private Button btnCancel;
     private CustomRecyclerAdapter<APKEntity> adapter;
     private BottomSheetRecyclerAdapter<PackageEntity> bottomSheetAdapter;
-    private List<APKEntity> apkList = new ArrayList<>();
-    private List<PackageEntity> pkgList = new ArrayList<>();
+    private final List<APKEntity> apkList = new ArrayList<>();
+    private final List<PackageEntity> pkgList = new ArrayList<>();
     private Presenter presenter;
     private BottomSheetDialog bottomSheetDialog;
     private String selectedVersionType;
@@ -79,8 +83,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     private String selectedApplicationName = "全部";
     private static final String defaultSystemType = "android";
     private MyReceiver receiver;
-    private IntentFilter intentFilter;
-    private ArrayList<String> buildTypes = new ArrayList<>();
+    private final ArrayList<String> buildTypes = new ArrayList<>();
     private int pageIndex = 1;
     private static int dataListSize;
 
@@ -92,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         presenter = new Presenter(this, new RxErrorHandler.Builder().with(this).responseErrorListener(this).build());
         swipeRefreshLayout.setOnRefreshListener(this);
         initData();
+        requestPermissions();
         initAdapter();
 
         filterBuildType.setTitle("全部");
@@ -118,6 +122,31 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         });
     }
 
+    private void requestPermissions() {
+        final RxPermissions rxPermissions = new RxPermissions(this);
+        rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean granted) {
+                        if (granted) {
+                            Log.i(TAG, "call: true");
+                        } else {
+                            Log.i(TAG, "call: false");
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("提示")
+                                    .setMessage("请务必给与存储权限，以便您的使用")
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    requestPermissions();
+                                }
+                            });
+                            builder.create().show();
+                        }
+                    }
+                });
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -140,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         buildTypes.add("测试");
     }
 
-    public void initAdapter() {
+    private void initAdapter() {
         adapter = new CustomRecyclerAdapter<APKEntity>(apkList) {
             @Override
             public void convert(CommonViewHolder holder, final APKEntity apkEntity, int position) {
@@ -302,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     }
 
     /*正式/测试筛选*/
-    public void showBottomSheetDialog(final ArrayList<String> buildTypes) {
+    private void showBottomSheetDialog(final ArrayList<String> buildTypes) {
         initBottomSheetDialog();
         BottomSheetRecyclerAdapter<String> bottomSheetAdapter = new BottomSheetRecyclerAdapter<String>(buildTypes) {
             @Override
@@ -335,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                     filterBuildType.setHighlight(true);
                 }
                 filterBuildType.setTitle(buildTypes.get(position));
-                doFilter(defaultSystemType, selectedApplicationID, selectedVersionType);
+                doFilter(selectedApplicationID, selectedVersionType);
             }
 
             @Override
@@ -347,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     }
 
     /*APK筛选*/
-    public void showBottomSheetDialog(final List<PackageEntity> dataSource) {
+    private void showBottomSheetDialog(final List<PackageEntity> dataSource) {
         initBottomSheetDialog();
 
         bottomRecyclerView.setAdapter(bottomSheetAdapter);
@@ -364,7 +393,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                 }
                 selectedApplicationName = dataSource.get(position).getApplication_name();
                 filterPackageName.setTitle(dataSource.get(position).getApplication_name());
-                doFilter(defaultSystemType, selectedApplicationID, selectedVersionType);
+                doFilter(selectedApplicationID, selectedVersionType);
             }
 
             @Override
@@ -400,23 +429,23 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         }
     }
 
-    private void doFilter(String system_name, String application_id, String version_type) {
+    private void doFilter(String application_id, String version_type) {
         if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
             bottomSheetDialog.dismiss();
         }
         pageIndex = 1;
-        presenter.getSpecifiedAPKVersionList(system_name, application_id, version_type, pageIndex);
+        presenter.getSpecifiedAPKVersionList(MainActivity.defaultSystemType, application_id, version_type, pageIndex);
     }
 
     private void registerReceiver() {
         receiver = new MyReceiver();
-        intentFilter = new IntentFilter(DownloadService.BROADCAST_ACTION);
+        IntentFilter intentFilter = new IntentFilter(DownloadService.BROADCAST_ACTION);
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, intentFilter);
 
     }
 
-    public void installAPK(String url, String fileName) {
+    private void installAPK(String url, String fileName) {
         Intent serviceIntent = new Intent(this, DownloadService.class);
         serviceIntent.setData(Uri.parse(url));
         serviceIntent.putExtra(DownloadService.FILE_NAME, fileName);
@@ -433,42 +462,24 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         @Override
         public void onReceive(Context context, Intent intent) {
             String fileName = intent.getStringExtra(DownloadService.FILE_NAME);
-
-            switch (intent.getIntExtra(DownloadService.DOWNLOAD_RESULT, -1)) {
-                case DownloadManager.STATUS_SUCCESSFUL:
-                   installAPK(fileName);
-                    break;
-                case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
-                    Toast.makeText(MainActivity.this, "file:" + fileName + "exists", Toast.LENGTH_SHORT).show();
-                    break;
-                case DownloadManager.ERROR_INSUFFICIENT_SPACE:
-                    Toast.makeText(MainActivity.this, "存储空间不足......", Toast.LENGTH_SHORT).show();
-                    break;
-
-                case DownloadManager.STATUS_FAILED:
-                    Toast.makeText(MainActivity.this, "下载失败......", Toast.LENGTH_SHORT).show();
-                    break;
-                case -1:
-                    break;
-
-            }
-
+            installAPK(fileName);
         }
 
-        public void installAPK(String fileName){
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    }
+
+    private void installAPK(String fileName) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/myapp", fileName);
+        //在Android7.0(Android N)及以上版本
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
-            Log.i(TAG, "installAPK: " + file.getAbsolutePath());
-            Log.i(TAG, "installAPK: " + file.getParentFile().getAbsolutePath());
-
-//            Uri uri = FileProvider.getUriForFile(MainActivity.this, "com.meiliwu.installer.fileprovider", file);//通过FileProvider创建一个content类型的Uri
-            Uri uri = Uri.fromFile(file);
-            Log.i(TAG, "installAPK: uri ==  " + uri);
+            Uri uri = FileProvider.getUriForFile(MainActivity.this, "com.meiliwu.installer.fileprovider", file);//通过FileProvider创建一个content类型的Uri
             intent.setDataAndType(uri, "application/vnd.android.package-archive");
-            startActivity(intent);
+        } else {
+            Uri uri = Uri.fromFile(file);
+            intent.setDataAndType(uri, "application/vnd.android.package-archive");
         }
+        startActivity(intent);
     }
 }
