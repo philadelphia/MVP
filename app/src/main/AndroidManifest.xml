@@ -44,15 +44,7 @@
                 android:resource="@xml/shared_file_path" />
         </provider>
 
-        <receiver android:name=".view.CustomBottomSheetDialog">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
 
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/custom_bottom_sheet_dialog_info" />
-        </receiver>
     </application>
 
 </manifest>
