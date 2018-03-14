@@ -24,8 +24,6 @@ public abstract class EndlessRecyclerOnScrollListener extends RecyclerView.OnScr
             //获取最后一个完全显示的itemPosition
             int lastItemPosition = manager.findLastCompletelyVisibleItemPosition();
             int itemCount = manager.getItemCount();
-            Log.i(TAG, "onScrollStateChanged: lastItemPosition = " + lastItemPosition);
-            Log.i(TAG, "onScrollStateChanged: itemCount = " + itemCount);
 
             // 判断是否滑动到了最后一个item，并且是向上滑动
             if (lastItemPosition == (itemCount - 1) && isSlidingUpward && flag) {

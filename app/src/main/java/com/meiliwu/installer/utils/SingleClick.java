@@ -1,7 +1,5 @@
 package com.meiliwu.installer.utils;
 
-import android.util.Log;
-
 /**
  * @author :  V.Wenju.Tian
  * @description : 防止多次点击
@@ -14,7 +12,6 @@ public class SingleClick {
     public static boolean isSingle(long defalutTime) {
         long currentTime = System.currentTimeMillis();
         boolean isSign = currentTime - lastTime <= defalutTime ? false : true;
-        Log.e("taggg", isSign + "");
         lastTime = currentTime;
 
         return isSign;

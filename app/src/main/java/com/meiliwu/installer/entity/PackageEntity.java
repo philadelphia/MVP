@@ -22,8 +22,6 @@ public class PackageEntity implements ISelectable {
      * create_time : 1512006618
      * update_time : 1512006618
      */
-
-
     private String id;
     private String application_name;
     private Object application_describe;

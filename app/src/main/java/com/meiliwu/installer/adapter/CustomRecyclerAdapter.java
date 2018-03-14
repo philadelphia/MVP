@@ -48,7 +48,7 @@ public abstract class CustomRecyclerAdapter<T> extends RecyclerView.Adapter<Comm
     // 加载到底
     public final int LOADING_END = 3;
 
-    public CustomRecyclerAdapter( List<T> dataSource) {
+    public CustomRecyclerAdapter(List<T> dataSource) {
 //        this.context = context;
         this.dataSource = dataSource;
     }
@@ -59,17 +59,17 @@ public abstract class CustomRecyclerAdapter<T> extends RecyclerView.Adapter<Comm
             case TYPE_ITEM:
                 View itemView = LayoutInflater.from(parent.getContext()).inflate(getItemLayoutID(), parent, false);
                 return new CommonViewHolder(itemView);
-            case    TYPE_FOOTER:
-                View footerView = LayoutInflater.from(parent.getContext()).inflate(getFootViewLayoutID(),parent,false);
+            case TYPE_FOOTER:
+                View footerView = LayoutInflater.from(parent.getContext()).inflate(getFootViewLayoutID(), parent, false);
                 return new CommonViewHolder(footerView);
-                default:
-                    return  null;
+            default:
+                return null;
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position  == getItemCount() -1) {
+        if (position == getItemCount() - 1) {
             return TYPE_FOOTER;
         } else {
             return TYPE_ITEM;
@@ -78,29 +78,29 @@ public abstract class CustomRecyclerAdapter<T> extends RecyclerView.Adapter<Comm
 
     @Override
     public void onBindViewHolder(CommonViewHolder holder, int position) {
-        switch (getItemViewType(position)){
+        switch (getItemViewType(position)) {
             case TYPE_ITEM:
                 convert(holder, dataSource.get(position), position);
-            break;
+                break;
             case TYPE_FOOTER:
                 switch (loadState) {
                     case LOADING: // 正在加载
-                        holder.setVisible(R.id.progressBar,View.VISIBLE);
+                        holder.setVisible(R.id.progressBar, View.VISIBLE);
                         holder.setVisible(R.id.tv_loadMore, View.VISIBLE);
-                        holder.setVisible(R.id.tv_loadEnd,View.GONE);
+                        holder.setVisible(R.id.tv_loadEnd, View.GONE);
 
                         break;
 
                     case LOADING_COMPLETE: // 加载完成,footerview 隐藏
-                        holder.setVisible(R.id.progressBar,View.INVISIBLE);
+                        holder.setVisible(R.id.progressBar, View.INVISIBLE);
                         holder.setVisible(R.id.tv_loadMore, View.INVISIBLE);
-                      holder.setVisible(R.id.tv_loadEnd,View.GONE);
+                        holder.setVisible(R.id.tv_loadEnd, View.GONE);
                         break;
 
                     case LOADING_END: // 加载到底
-                        holder.setVisible(R.id.progressBar,View.GONE);
+                        holder.setVisible(R.id.progressBar, View.GONE);
                         holder.setVisible(R.id.tv_loadMore, View.GONE);
-                        holder.setVisible(R.id.tv_loadEnd,View.VISIBLE);
+                        holder.setVisible(R.id.tv_loadEnd, View.VISIBLE);
                         break;
 
                     default:
@@ -112,10 +112,10 @@ public abstract class CustomRecyclerAdapter<T> extends RecyclerView.Adapter<Comm
     }
 
 
-
-
     public abstract void convert(CommonViewHolder holder, T item, int position);
+
     public abstract int getItemLayoutID();
+
     public abstract int getFootViewLayoutID();
 
     @Override
@@ -124,35 +124,35 @@ public abstract class CustomRecyclerAdapter<T> extends RecyclerView.Adapter<Comm
     }
 
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder{
-        private ImageView img_icon;
-        private TextView tv_packageName, tv_timeStamp;
-        private TextView tv_isDebugVersion;
-        private Button btn_installer;
-
-        public MyViewHolder(View itemView) {
-            super(itemView);
-            img_icon = itemView.findViewById(R.id.img_icon);
-            tv_packageName = itemView.findViewById(R.id.tv_packageName);
-            tv_timeStamp = itemView.findViewById(R.id.tv_timeStamp);
-            tv_isDebugVersion = itemView.findViewById(R.id.tv_isDebugVersion);
-            btn_installer = itemView.findViewById(R.id.btn_downLoad);
-        }
-    }
-
-
-    private static class FootViewHolder extends RecyclerView.ViewHolder {
-        ProgressBar pbLoading;
-        TextView tvLoading;
-        LinearLayout llEnd;
-
-        FootViewHolder(View itemView) {
-            super(itemView);
-            pbLoading = (ProgressBar) itemView.findViewById(R.id.progressBar);
-            tvLoading = (TextView) itemView.findViewById(R.id.tv_loadMore);
-//            llEnd = (LinearLayout) itemView.findViewById(R.id.ll_end);
-        }
-    }
+//    public static class MyViewHolder extends RecyclerView.ViewHolder {
+//        private ImageView img_icon;
+//        private TextView tv_packageName, tv_timeStamp;
+//        private TextView tv_isDebugVersion;
+//        private Button btn_installer;
+//
+//        public MyViewHolder(View itemView) {
+//            super(itemView);
+//            img_icon = itemView.findViewById(R.id.img_icon);
+//            tv_packageName = itemView.findViewById(R.id.tv_packageName);
+//            tv_timeStamp = itemView.findViewById(R.id.tv_timeStamp);
+//            tv_isDebugVersion = itemView.findViewById(R.id.tv_isDebugVersion);
+//            btn_installer = itemView.findViewById(R.id.btn_downLoad);
+//        }
+//    }
+//
+//
+//    private static class FootViewHolder extends RecyclerView.ViewHolder {
+//        ProgressBar pbLoading;
+//        TextView tvLoading;
+//        LinearLayout llEnd;
+//
+//        FootViewHolder(View itemView) {
+//            super(itemView);
+//            pbLoading = (ProgressBar) itemView.findViewById(R.id.progressBar);
+//            tvLoading = (TextView) itemView.findViewById(R.id.tv_loadMore);
+////            llEnd = (LinearLayout) itemView.findViewById(R.id.ll_end);
+//        }
+//    }
 
     /**
      * 设置上拉加载状态

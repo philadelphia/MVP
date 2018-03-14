@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
-import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 /**
  * Author:  ZhangTao
@@ -17,13 +15,11 @@ import android.util.Log;
  */
 
 public class DownloadService extends IntentService {
-    private String TAG = "DownloadService";
     public static final String BROADCAST_ACTION =
             "com.meiliwu.installer.service.BROADCAST";
     public static final String EXTENDED_DATA_STATUS =
             "com.meiliwu.installer.service.STATUS";
     public static final String FILE_NAME = "fileName";
-
 
     private LocalBroadcastManager mLocalBroadcastManager;
 
@@ -36,13 +32,12 @@ public class DownloadService extends IntentService {
         //获取下载地址
         String url = intent.getDataString();
         String fileName = intent.getStringExtra(FILE_NAME);
-        Log.i(TAG, url);
         //获取DownloadManager对象
         DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 
         //指定APK缓存路径和应用名称，可在SD卡/storage/sdcard0/Download文件夹中查看
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,  "myapp/"+ fileName);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "myapp/" + fileName);
         //设置网络下载环境为wifi和Mobile环境
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
         //设置下载文件的mineType。因为下载管理Ui中点击某个已下载完成文件及下载完成点击通知栏提示都会根据mimeType去打开文件，所以我们可以利用这个属性。

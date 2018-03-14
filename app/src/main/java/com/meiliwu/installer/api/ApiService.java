@@ -4,7 +4,6 @@ import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.entity.Result;
 
-
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import rx.Observable;

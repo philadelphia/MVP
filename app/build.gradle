@@ -18,19 +18,62 @@ android {
         applicationId "com.meiliwu.installer"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
         multiDexEnabled true
+        versionCode VERSION_CODE as int
+        versionName VERSION_NAME
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
-    buildTypes {
+    //签名
+    signingConfigs {
+        debug {
+//            storeFile file("～/.android/debug.keystore")
+        }
+
         release {
+            storeFile file("eallcn_chow.jks")
+            storePassword STORE_PASSWORD
+            keyAlias KEY_ALIAS
+            keyPassword KEY_PASSWORD
+        }
+    }
+
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        release {
+            applicationIdSuffix ".release"
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            applicationVariants.all { variant ->
+//                appendVersionNameVersionCode(variant, defaultConfig)
+//            }
         }
     }
 }
+
+
+def appendVersionNameVersionCode(variant, defaultConfig) {
+    variant.outputs.each { output ->
+        if (output.zipAlign) {
+            def file = output.outputFile
+            def fileName = file.name.replace(".apk", "_" + defaultConfig.versionName + ".apk").replaceFirst("app", "meiliwuInstaller").replace("-", "_")
+            output.outputFileName = fileName
+        } else {
+            def file = output.outputFileName
+            def fileName = file.replace(".apk", "_" + defaultConfig.versionName + ".apk").replaceFirst("app", "meiliwuInstaller").replace("-", "_")
+            output.outputFileName = fileName
+        }
+
+    }
+}
+
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -48,10 +91,10 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.6.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
     /*gson*/
-    compile 'com.google.code.gson:gson:2.8.1'
+    implementation 'com.google.code.gson:gson:2.8.1'
 
-    compileOnly  "com.google.auto.value:auto-value:1.5"
-    annotationProcessor          "com.google.auto.value:auto-value:1.5"
+    compileOnly "com.google.auto.value:auto-value:1.5"
+    annotationProcessor "com.google.auto.value:auto-value:1.5"
 
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:retrofit-converters:2.3.0'

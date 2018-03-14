@@ -1,9 +1,5 @@
 package com.meiliwu.installer.rx;
 
-import android.widget.Toast;
-
-import com.meiliwu.installer.utils.NetWorkUtil;
-
 import rx.Subscriber;
 
 /**

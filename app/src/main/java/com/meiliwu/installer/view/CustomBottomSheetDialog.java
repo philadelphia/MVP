@@ -128,11 +128,13 @@ public class CustomBottomSheetDialog extends View {
     }
 
     public void show() {
-        bottomSheetDialog.show();
+        if (bottomSheetDialog != null && !bottomSheetDialog.isShowing()){
+            bottomSheetDialog.show();
+        }
     }
 
     public void dismiss() {
-        if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
+        if (bottomSheetDialog.isShowing()) {
             bottomSheetDialog.dismiss();
         }
     }

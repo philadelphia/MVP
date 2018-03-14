@@ -1,7 +1,5 @@
 package com.meiliwu.installer.mvp;
 
-import android.util.Log;
-
 import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.entity.Result;
@@ -10,10 +8,7 @@ import com.meiliwu.installer.rx.RxErrorHandlerSubscriber;
 
 import rx.Observable;
 import rx.Subscription;
-import rx.exceptions.OnErrorFailedException;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
-
 
 /**
  * Author Tao.ZT.Zhang
@@ -35,7 +30,6 @@ public class Presenter {
     }
 
     public void getPackageList() {
-        Log.i(TAG, "getPackageList: ");
         Observable<Result<PackageEntity>> observable = model.getPackageList();
         Subscription subscribe = observable.subscribe(new RxErrorHandlerSubscriber<Result<PackageEntity>>(rxErrorHandler) {
             @Override
@@ -59,11 +53,6 @@ public class Presenter {
     }
 
     public void getSpecifiedAPKVersionList(String system_name, String application_id, String version_type, int pageIndex) {
-        Log.i(TAG, "getSpecifiedAPKVersionList: ");
-        Log.d(TAG, "system_name == :  " + system_name);
-        Log.d(TAG, "application_id: " + application_id);
-        Log.d(TAG, "version_type: " + version_type);
-        Log.d(TAG, "pageIndex: " + pageIndex);
         Observable<Result<APKEntity>> specifiedAPKVersionList = model.getSpecifiedAPKVersionList(system_name, application_id, version_type, pageIndex);
         Subscription subscribe = specifiedAPKVersionList.subscribe(new RxErrorHandlerSubscriber<Result<APKEntity>>(rxErrorHandler) {
             @Override
@@ -86,8 +75,8 @@ public class Presenter {
 
     }
 
-    public void onDestroy(){
-        if (compositeSubscription != null){
+    public void onDestroy() {
+        if (compositeSubscription != null) {
             compositeSubscription.unsubscribe();
         }
     }

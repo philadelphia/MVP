@@ -25,7 +25,6 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.meiliwu.installer.adapter.CommonViewHolder;
 import com.meiliwu.installer.adapter.CustomRecyclerAdapter;
-import com.meiliwu.installer.adapter.WrapContentLinearLayoutManager;
 import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.BuildType;
 import com.meiliwu.installer.entity.ISelectable;
@@ -36,8 +35,8 @@ import com.meiliwu.installer.rx.ResponseErrorListener;
 import com.meiliwu.installer.rx.RxErrorHandler;
 import com.meiliwu.installer.service.DownloadService;
 import com.meiliwu.installer.utils.EndlessRecyclerOnScrollListener;
-import com.meiliwu.installer.view.FilterTabItemView;
 import com.meiliwu.installer.view.CustomBottomSheetDialog;
+import com.meiliwu.installer.view.FilterTabItemView;
 import com.meiliwu.installer.view.StatusLayout;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -101,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
             @Override
             public void onLoadMore() {
-                Log.i(TAG, "onLoadMore: ");
                 if (apkList.size() < dataListSize) {
                     adapter.setLoadState(adapter.LOADING);
                     presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
@@ -196,7 +194,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
 
     @Override
     public void onLoadPackageListSuccess(List<PackageEntity> dataList) {
-        Log.i(TAG, "onLoadPackageListSuccess: " + dataList.size());
         disableFilter(false);
         swipeRefreshLayout.setRefreshing(false);
         pkgList.clear();
@@ -209,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
 
     @Override
     public void onLoadAPKListSuccess(List<APKEntity> dataSource) {
-        Log.i(TAG, "onLoadAPKListSuccess:dataSource.size() ==  " + dataSource.size());
         swipeRefreshLayout.setRefreshing(false);
         adapter.setLoadState(adapter.LOADING_COMPLETE);
         apkList.addAll(dataSource);
@@ -219,19 +215,16 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         } else {
             adapter.setLoadState(adapter.LOADING_END);
         }
-        Log.i(TAG, "onLoadAPKListSuccess: 已加载数据长度 ==  " + apkList.size());
     }
 
     @Override
     public void onLoadPackageListFailed() {
-        Log.i(TAG, "onLoadPackageListFailed: ");
         disableFilter(true);
         swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public void onLoadAPKListFailed() {
-        Log.i(TAG, "onLoadAPKListFailed: ");
         adapter.setLoadState(adapter.LOADING_COMPLETE);
         statusLayout.setEmptyClick(new View.OnClickListener() {
             @Override
@@ -244,7 +237,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     @Override
     public void notifyDataSize(int count) {
         dataListSize = count;
-        Log.i(TAG, "notifyDataSize:dataListSize =  " + dataListSize);
     }
 
     @Override
@@ -264,7 +256,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
 
     @Override
     public void onFailure(String string) {
-        Log.i(TAG, "onFailure: " + string);
 
     }
 
@@ -276,7 +267,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
 
     @Override
     public void onRefresh() {
-        Log.i(TAG, "onRefresh: ");
         /*清空已加载的apk数据*/
         apkList.clear();
         pageIndex = 1;
@@ -334,8 +324,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     }
 
     private void doFilter(String application_id, String version_type) {
-        Log.i(TAG, "application_id == " + application_id);
-        Log.i(TAG, "version_type == " + version_type);
         pageIndex = 1;
         presenter.getSpecifiedAPKVersionList(MainActivity.defaultSystemType, application_id, version_type, pageIndex);
     }
