@@ -43,6 +43,7 @@ android {
         debug {
             applicationIdSuffix ".debug"
             signingConfig signingConfigs.debug
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
@@ -51,10 +52,15 @@ android {
             signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//            applicationVariants.all { variant ->
-//                appendVersionNameVersionCode(variant, defaultConfig)
-//            }
+            applicationVariants.all { variant ->
+                appendVersionNameVersionCode(variant, defaultConfig)
+            }
         }
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+        abortOnError false
     }
 }
 
@@ -72,6 +78,8 @@ def appendVersionNameVersionCode(variant, defaultConfig) {
         }
 
     }
+
+
 }
 
 

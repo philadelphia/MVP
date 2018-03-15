@@ -15,8 +15,8 @@ import com.meiliwu.installer.rx.ResponseErrorListener;
 public class App extends Application implements ResponseErrorListener{
     private static App mInstance = new App();
 
-    private App() {
-
+    public App() {
+        super();
     }
 
     public static Application getInstance() {

@@ -379,15 +379,15 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/myapp", fileName);
+        Uri uri ;
         //在Android7.0(Android N)及以上版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Uri uri = FileProvider.getUriForFile(MainActivity.this, "com.meiliwu.installer.fileprovider", file);//通过FileProvider创建一个content类型的Uri
-            intent.setDataAndType(uri, "application/vnd.android.package-archive");
+            uri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID +".fileprovider", file);//通过FileProvider创建一个content类型的Uri
         } else {
-            Uri uri = Uri.fromFile(file);
-            intent.setDataAndType(uri, "application/vnd.android.package-archive");
+            uri = Uri.fromFile(file);
         }
+        intent.setDataAndType(uri, "application/vnd.android.package-archive");
         startActivity(intent);
     }
 }
