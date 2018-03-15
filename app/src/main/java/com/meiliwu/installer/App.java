@@ -13,10 +13,12 @@ import com.meiliwu.installer.rx.ResponseErrorListener;
  */
 
 public class App extends Application implements ResponseErrorListener{
-    private static App mInstance = new App();
+    private static App mInstance ;
 
-    public App() {
-        super();
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mInstance = this;
     }
 
     public static Application getInstance() {
