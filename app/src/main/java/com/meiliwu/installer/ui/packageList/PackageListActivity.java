@@ -1,4 +1,4 @@
-package com.meiliwu.installer;
+package com.meiliwu.installer.ui.packageList;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -14,7 +14,6 @@ import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -23,16 +22,23 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.meiliwu.installer.BuildConfig;
+import com.meiliwu.installer.R;
 import com.meiliwu.installer.adapter.CommonViewHolder;
 import com.meiliwu.installer.adapter.CustomRecyclerAdapter;
+import com.meiliwu.installer.base.BaseActivity;
+import com.meiliwu.installer.di.AppComponent;
 import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.BuildType;
 import com.meiliwu.installer.entity.ISelectable;
 import com.meiliwu.installer.entity.PackageEntity;
-import com.meiliwu.installer.mvp.MvpContract;
 import com.meiliwu.installer.rx.ResponseErrorListener;
-import com.meiliwu.installer.rx.RxErrorHandler;
 import com.meiliwu.installer.service.DownloadService;
+import com.meiliwu.installer.ui.packageList.di.DaggerPackageListComponent;
+import com.meiliwu.installer.ui.packageList.di.PackageListComponent;
+import com.meiliwu.installer.ui.packageList.di.PackageListModule;
+import com.meiliwu.installer.ui.packageList.mvp.PackageListContract;
+import com.meiliwu.installer.ui.packageList.mvp.PackageListPresenter;
 import com.meiliwu.installer.utils.EndlessRecyclerOnScrollListener;
 import com.meiliwu.installer.view.CustomBottomSheetDialog;
 import com.meiliwu.installer.view.FilterTabItemView;
@@ -49,8 +55,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.functions.Action1;
 
-public class MainActivity extends AppCompatActivity implements MvpContract.IView, SwipeRefreshLayout.OnRefreshListener, ResponseErrorListener, CustomBottomSheetDialog.OnItemClickListener {
-    private static final String TAG = "MainActivity";
+public class PackageListActivity extends BaseActivity<PackageListPresenter> implements PackageListContract.View, SwipeRefreshLayout.OnRefreshListener, ResponseErrorListener, CustomBottomSheetDialog.OnItemClickListener {
+    private static final String TAG = "PackageListActivity";
     @BindView(R.id.statusLayout)
     StatusLayout statusLayout;
     @BindView(R.id.recyclerView)
@@ -64,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     private CustomRecyclerAdapter<APKEntity> adapter;
     private final List<APKEntity> apkList = new ArrayList<>();
     private final List<PackageEntity> pkgList = new ArrayList<>();
-    private Presenter presenter;
     private String selectedVersionType;
     private String selectedApplicationID;
     private static final String defaultSystemType = "android";
@@ -78,9 +83,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        presenter = new Presenter(this, new RxErrorHandler.Builder().with(this).responseErrorListener(this).build());
         swipeRefreshLayout.setOnRefreshListener(this);
         initData();
         requestPermissions();
@@ -89,8 +92,13 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         disableFilter(true);
 
         //请求数据
-        presenter.getPackageList();
-        presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
+        if (getPresenter() == null) {
+            Log.i(TAG, "onCreate: getPresenter() == null");
+        }else {
+            Log.i(TAG, "onCreate: Presenter not null" );
+        }
+        getPresenter().getPackageList();
+        getPresenter().getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
 
         filterBuildType.setTitle("全部");
         filterPackageName.setTitle("全部");
@@ -101,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
             public void onLoadMore() {
                 if (apkList.size() < dataListSize) {
                     adapter.setLoadState(adapter.LOADING);
-                    presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
+                    getPresenter().getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
                 }
 
             }
@@ -119,7 +127,17 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
-        presenter.onDestroy();
+        getPresenter().onDestroy();
+    }
+
+    @Override
+    protected void componentInject(AppComponent appComponent) {
+        DaggerPackageListComponent.builder().appComponent(appComponent).packageListModule(new PackageListModule(this)).build().inject(this);
+    }
+
+    @Override
+    public int getLayoutID() {
+        return R.layout.activity_main;
     }
 
     private void requestPermissions() {
@@ -132,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
                             Log.i(TAG, "call: true");
                         } else {
                             Log.i(TAG, "call: false");
-                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+                            AlertDialog.Builder builder = new AlertDialog.Builder(PackageListActivity.this)
                                     .setTitle("提示")
                                     .setMessage("请务必给与存储权限，以便您的使用")
                                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -228,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         statusLayout.setEmptyClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
+                getPresenter().getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
             }
         });
     }
@@ -269,8 +287,8 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         /*清空已加载的apk数据*/
         apkList.clear();
         pageIndex = 1;
-        presenter.getPackageList();
-        presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
+        getPresenter().getPackageList();
+        getPresenter().getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
     }
 
     @OnClick({R.id.filter_buildType, R.id.filter_packageName})
@@ -324,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
 
     private void doFilter(String application_id, String version_type) {
         pageIndex = 1;
-        presenter.getSpecifiedAPKVersionList(MainActivity.defaultSystemType, application_id, version_type, pageIndex);
+        getPresenter().getSpecifiedAPKVersionList(PackageListActivity.defaultSystemType, application_id, version_type, pageIndex);
     }
 
     private void registerReceiver() {
@@ -382,7 +400,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         //在Android7.0(Android N)及以上版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            uri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID +".fileprovider", file);//通过FileProvider创建一个content类型的Uri
+            uri = FileProvider.getUriForFile(PackageListActivity.this, BuildConfig.APPLICATION_ID +".fileprovider", file);//通过FileProvider创建一个content类型的Uri
         } else {
             uri = Uri.fromFile(file);
         }

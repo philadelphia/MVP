@@ -1,8 +1,14 @@
-package com.meiliwu.installer.mvp;
+package com.meiliwu.installer;
 
+/**
+ * Author:  ZhangTao
+ * Date: 2018/3/30.
+ */
 import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.entity.Result;
+import com.meiliwu.installer.mvp.Model;
+import com.meiliwu.installer.mvp.MvpContract;
 import com.meiliwu.installer.rx.RxErrorHandler;
 import com.meiliwu.installer.rx.RxErrorHandlerSubscriber;
 
@@ -15,14 +21,14 @@ import rx.subscriptions.CompositeSubscription;
  * Date   2017/10/30
  */
 
-public class MyPresenter {
-    private static final String TAG = "MyPresenter";
+public class Presenter {
+    private static final String TAG = "Presenter";
     private MvpContract.IView view;
     private MvpContract.IModel model;
     private CompositeSubscription compositeSubscription;
     private RxErrorHandler rxErrorHandler;
 
-    public MyPresenter(MvpContract.IView iView, RxErrorHandler rxErrorHandler) {
+    public Presenter(MvpContract.IView iView, RxErrorHandler rxErrorHandler) {
         view = iView;
         model = new Model();
         this.rxErrorHandler = rxErrorHandler;

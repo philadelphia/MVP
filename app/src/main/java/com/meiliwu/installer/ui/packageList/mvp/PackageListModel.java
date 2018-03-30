@@ -1,4 +1,4 @@
-package com.meiliwu.installer.ui.packgeList.mvp;
+package com.meiliwu.installer.ui.packageList.mvp;
 
 import com.meiliwu.installer.api.ApiService;
 import com.meiliwu.installer.base.BaseModel;
@@ -13,7 +13,6 @@ import rx.Observable;
  * Date: 2018/3/29.
  */
 public class PackageListModel extends BaseModel<ApiService> implements PackageListContract.Model {
-
     public PackageListModel(ApiService apiService) {
         super(apiService);
     }

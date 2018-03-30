@@ -1,6 +1,4 @@
-package com.meiliwu.installer.ui.packgeList.mvp;
-
-import android.view.View;
+package com.meiliwu.installer.ui.packageList.mvp;
 
 import com.meiliwu.installer.base.IModel;
 import com.meiliwu.installer.base.IView;

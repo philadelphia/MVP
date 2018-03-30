@@ -1,14 +1,15 @@
-package com.meiliwu.installer.ui.packgeList.mvp;
+package com.meiliwu.installer.ui.packageList.mvp;
 
 import com.meiliwu.installer.base.BasePresenter;
 import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.entity.Result;
-import com.meiliwu.installer.mvp.Model;
-import com.meiliwu.installer.mvp.MvpContract;
 import com.meiliwu.installer.rx.RxErrorHandler;
 import com.meiliwu.installer.rx.RxErrorHandlerSubscriber;
+import com.meiliwu.installer.ui.packageList.di.ActivityScope;
 import com.meiliwu.installer.utils.ApiServiceUtil;
+
+import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscription;
@@ -19,16 +20,18 @@ import rx.subscriptions.CompositeSubscription;
  * Date   2017/10/30
  */
 
+@ActivityScope
 public class PackageListPresenter extends BasePresenter<PackageListContract.View, PackageListContract.Model> {
     private static final String TAG = "PackageListPresenter";
 
-    private CompositeSubscription compositeSubscription;
+
     private RxErrorHandler rxErrorHandler;
-    private PackageListContract.Model model = new PackageListModel(ApiServiceUtil.getApiService());
+
+    @Inject
     public PackageListPresenter(PackageListContract.View view, PackageListContract.Model model, RxErrorHandler rxErrorHandler) {
         super(view, model);
         this.rxErrorHandler = rxErrorHandler;
-        compositeSubscription = new CompositeSubscription();
+
     }
 
     public void getPackageList() {
@@ -49,14 +52,20 @@ public class PackageListPresenter extends BasePresenter<PackageListContract.View
                     getView().onLoadPackageListFailed();
                 }
             }
+
+
+            @Override
+            public void onError(Throwable e) {
+                super.onError(e);
+            }
         });
 
-        compositeSubscription.add(subscribe);
+        addSubscription(subscribe);
     }
 
     public void getSpecifiedAPKVersionList(String system_name, String application_id, String version_type, int pageIndex) {
         Observable<Result<APKEntity>> specifiedAPKVersionList = getModel().getSpecifiedAPKVersionList(system_name, application_id, version_type, pageIndex);
-        Subscription subscribe = specifiedAPKVersionList.subscribe(new RxErrorHandlerSubscriber<Result<APKEntity>>(rxErrorHandler) {
+        Subscription subscription = specifiedAPKVersionList.subscribe(new RxErrorHandlerSubscriber<Result<APKEntity>>(rxErrorHandler) {
             @Override
             public void onNext(Result<APKEntity> apkEntityResult) {
                 if (apkEntityResult.getCode() == 0) {
@@ -73,13 +82,10 @@ public class PackageListPresenter extends BasePresenter<PackageListContract.View
             }
         });
 
-        compositeSubscription.add(compositeSubscription);
-
+        addSubscription(subscription);
     }
 
     public void onDestroy() {
-        if (compositeSubscription != null) {
-            compositeSubscription.unsubscribe();
-        }
+
     }
 }
