@@ -25,15 +25,18 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.meiliwu.installer.adapter.CommonViewHolder;
 import com.meiliwu.installer.adapter.CustomRecyclerAdapter;
+import com.meiliwu.installer.base.BaseActivity;
 import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.BuildType;
 import com.meiliwu.installer.entity.ISelectable;
 import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.mvp.MvpContract;
-import com.meiliwu.installer.mvp.Presenter;
+import com.meiliwu.installer.mvp.MyPresenter;
 import com.meiliwu.installer.rx.ResponseErrorListener;
 import com.meiliwu.installer.rx.RxErrorHandler;
 import com.meiliwu.installer.service.DownloadService;
+import com.meiliwu.installer.ui.packgeList.mvp.PackageListContract;
+import com.meiliwu.installer.ui.packgeList.mvp.PackageListPresenter;
 import com.meiliwu.installer.utils.EndlessRecyclerOnScrollListener;
 import com.meiliwu.installer.view.CustomBottomSheetDialog;
 import com.meiliwu.installer.view.FilterTabItemView;
@@ -50,7 +53,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.functions.Action1;
 
-public class MainActivity extends AppCompatActivity implements MvpContract.IView, SwipeRefreshLayout.OnRefreshListener, ResponseErrorListener, CustomBottomSheetDialog.OnItemClickListener {
+public class MainActivity extends BaseActivity<PackageListPresenter> implements PackageListContract.View, SwipeRefreshLayout.OnRefreshListener, ResponseErrorListener, CustomBottomSheetDialog.OnItemClickListener {
     private static final String TAG = "MainActivity";
     @BindView(R.id.statusLayout)
     StatusLayout statusLayout;
@@ -65,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     private CustomRecyclerAdapter<APKEntity> adapter;
     private final List<APKEntity> apkList = new ArrayList<>();
     private final List<PackageEntity> pkgList = new ArrayList<>();
-    private Presenter presenter;
+    private MyPresenter presenter;
     private String selectedVersionType;
     private String selectedApplicationID;
     private static final String defaultSystemType = "android";
@@ -79,9 +82,8 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        presenter = new Presenter(this, new RxErrorHandler.Builder().with(this).responseErrorListener(this).build());
+        presenter = new PackageListPresenter(this, new RxErrorHandler.Builder().with(this).responseErrorListener(this).build());
         swipeRefreshLayout.setOnRefreshListener(this);
         initData();
         requestPermissions();
@@ -121,6 +123,11 @@ public class MainActivity extends AppCompatActivity implements MvpContract.IView
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         presenter.onDestroy();
+    }
+
+    @Override
+    public int getLayoutID() {
+        return R.layout.activity_main;
     }
 
     private void requestPermissions() {

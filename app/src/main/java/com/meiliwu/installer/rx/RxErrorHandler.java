@@ -49,13 +49,13 @@ public class RxErrorHandler {
     }
 
     public void handleError(Throwable e) {
-        Log.i("Presenter", "handleError: " + e.getCause());
-        Log.i("Presenter", "handleError: " + e.getMessage());
+        Log.i("PackageListPresenter", "handleError: " + e.getCause());
+        Log.i("PackageListPresenter", "handleError: " + e.getMessage());
         if (responseErrorListener != null) {
             UnifyThrowable ex;
             if (e instanceof HttpException) {
                 HttpException httpException = (HttpException) e;
-                Log.i("Presenter", "handleError: " + httpException.code());
+                Log.i("PackageListPresenter", "handleError: " + httpException.code());
 //               ConnectException
                 ex = new UnifyThrowable(e, ERROR.HTTP_ERROR);
                 switch (httpException.code()) {

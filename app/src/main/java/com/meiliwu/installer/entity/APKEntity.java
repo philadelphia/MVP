@@ -1,5 +1,8 @@
 package com.meiliwu.installer.entity;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 /**
  * Author:  ZhangTao
  * Date: 2018/3/6.
@@ -131,7 +134,9 @@ public class APKEntity {
     }
 
     public String getCreate_time() {
-        return create_time;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.getDefault());
+        String format = simpleDateFormat.format(Long.valueOf(create_time) * 1000);
+        return format;
     }
 
     public void setCreate_time(String create_time) {
