@@ -39,12 +39,12 @@ public class App extends Application implements ResponseErrorListener{
     }
 
     private void initModules() {
+        appModule = new AppModule(this);
         netModule = new NetModule.Builder()
-                .setApiUrl("https://github.com/")
+                .setApiUrl("http://backstage.mlwplus.com/")
                 .setErrorListener(this)
                 .setHandler(getHttpHandler())
                 .setInterceptors(null).build();
-        appModule = new AppModule(this);
 
         serviceModule = new ServiceModule();
     }

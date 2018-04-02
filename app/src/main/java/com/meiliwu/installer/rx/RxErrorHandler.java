@@ -21,6 +21,7 @@ import retrofit2.HttpException;
  * @description :通过builder方式创建RxErrorHandler
  */
 public class RxErrorHandler {
+    private static final String TAG = "RxErrorHandler";
     private static final int UNAUTHORIZED = 401;
     private static final int FORBIDDEN = 403;
     private static final int NOT_FOUND = 404;
@@ -49,13 +50,14 @@ public class RxErrorHandler {
     }
 
     public void handleError(Throwable e) {
-        Log.i("PackageListPresenter", "handleError: " + e.getCause());
-        Log.i("PackageListPresenter", "handleError: " + e.getMessage());
+        Log.i(TAG, "handleError: " + e.getCause());
+        Log.i(TAG, "handleError: " + e.getMessage());
+        Log.i(TAG, "handleError: " + e.toString());
         if (responseErrorListener != null) {
             UnifyThrowable ex;
             if (e instanceof HttpException) {
                 HttpException httpException = (HttpException) e;
-                Log.i("PackageListPresenter", "handleError: " + httpException.code());
+                Log.i(TAG, "handleError: " + httpException.code());
 //               ConnectException
                 ex = new UnifyThrowable(e, ERROR.HTTP_ERROR);
                 switch (httpException.code()) {

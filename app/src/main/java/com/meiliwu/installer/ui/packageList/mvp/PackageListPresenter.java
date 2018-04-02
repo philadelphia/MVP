@@ -1,5 +1,7 @@
 package com.meiliwu.installer.ui.packageList.mvp;
 
+import android.util.Log;
+
 import com.meiliwu.installer.base.BasePresenter;
 import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.PackageEntity;
@@ -7,13 +9,11 @@ import com.meiliwu.installer.entity.Result;
 import com.meiliwu.installer.rx.RxErrorHandler;
 import com.meiliwu.installer.rx.RxErrorHandlerSubscriber;
 import com.meiliwu.installer.ui.packageList.di.ActivityScope;
-import com.meiliwu.installer.utils.ApiServiceUtil;
 
 import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
 
 /**
  * Author Tao.ZT.Zhang
@@ -35,7 +35,14 @@ public class PackageListPresenter extends BasePresenter<PackageListContract.View
     }
 
     public void getPackageList() {
+        Log.i(TAG, "getPackageList: ");
         Observable<Result<PackageEntity>> observable = getModel().getPackageList();
+        if (observable == null){
+            Log.i(TAG, "getPackageList: observable is null");
+        }else {
+            Log.i(TAG, "getPackageList: observable is not null");
+        }
+
         Subscription subscribe = observable.subscribe(new RxErrorHandlerSubscriber<Result<PackageEntity>>(rxErrorHandler) {
             @Override
             public void onStart() {
@@ -64,6 +71,10 @@ public class PackageListPresenter extends BasePresenter<PackageListContract.View
     }
 
     public void getSpecifiedAPKVersionList(String system_name, String application_id, String version_type, int pageIndex) {
+        Log.i(TAG, "getSpecifiedAPKVersionList: ");
+        Log.i(TAG, "getSpecifiedAPKVersionList:system_name  " + system_name);
+        Log.i(TAG, "getSpecifiedAPKVersionList:application_id = " + application_id);
+        Log.i(TAG, "getSpecifiedAPKVersionList: version_type = " + version_type);
         Observable<Result<APKEntity>> specifiedAPKVersionList = getModel().getSpecifiedAPKVersionList(system_name, application_id, version_type, pageIndex);
         Subscription subscription = specifiedAPKVersionList.subscribe(new RxErrorHandlerSubscriber<Result<APKEntity>>(rxErrorHandler) {
             @Override
@@ -85,7 +96,5 @@ public class PackageListPresenter extends BasePresenter<PackageListContract.View
         addSubscription(subscription);
     }
 
-    public void onDestroy() {
 
-    }
 }

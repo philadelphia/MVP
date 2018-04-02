@@ -11,10 +11,6 @@ public class BaseModel<T> {
         this.t = t;
     }
 
-    public T getApiService(){
-        return t;
-    }
-
     public T getService() {
         return t;
     }

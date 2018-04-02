@@ -1,8 +1,9 @@
 package com.meiliwu.installer.di;
 
 import android.app.Application;
+import android.content.Context;
 
-import com.meiliwu.installer.App;
+import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -20,13 +21,15 @@ public class AppModule {
         this.app = app;
     }
 
+    @Singleton
     @Provides
     public Application providesApp(){
         return app;
     }
 
-//    @Provides
-//    public Context provideContext(){
-//        return this.app;
-//    }
+    @Singleton
+    @Provides
+    public Context provideContext(){
+        return app;
+    }
 }

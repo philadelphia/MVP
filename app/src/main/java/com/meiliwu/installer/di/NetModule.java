@@ -87,6 +87,7 @@ public class NetModule {
                 .readTimeout(TIME_OUT, TimeUnit.SECONDS)
                 .writeTimeout(TIME_OUT, TimeUnit.SECONDS)
                 .connectTimeout(TIME_OUT, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true)
                 .cache(cache).build();
     }
 
@@ -104,8 +105,8 @@ public class NetModule {
     * */
     @Singleton
     @Provides
-    File provideCacheFile(){
-        return App.getInstance().getCacheDir();
+    File provideCacheFile(Application application){
+        return application.getCacheDir();
     }
 
     /**
@@ -127,7 +128,7 @@ public class NetModule {
     public static final class Builder{
         private static final int TIME_OUT = 50;
         public static final int HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024 * 1024;//缓存文件最大值为10Mb
-        private HttpUrl mApiUrl;
+        private HttpUrl mApiUrl ;
         private GlobalHttpHandler mHandler;
         private Interceptor[] mInterceptors;
         private ResponseErrorListener mErrorListener;
@@ -148,6 +149,7 @@ public class NetModule {
             this.mHandler = handler;
             return this;
         }
+
         public Builder setInterceptors(Interceptor[] mInterceptors) {
             this.mInterceptors = mInterceptors;
             return this;

@@ -82,6 +82,7 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -95,6 +96,7 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
         if (getPresenter() == null) {
             Log.i(TAG, "onCreate: getPresenter() == null");
         }else {
+            Log.i(TAG, "onCreate: SimpleName " + getPresenter().getClass().getSimpleName());
             Log.i(TAG, "onCreate: Presenter not null" );
         }
         getPresenter().getPackageList();
@@ -125,18 +127,20 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
 
     @Override
     protected void onDestroy() {
+        Log.i(TAG, "onDestroy: ");
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
-        getPresenter().onDestroy();
     }
 
     @Override
     protected void componentInject(AppComponent appComponent) {
+        Log.i(TAG, "componentInject: ");
         DaggerPackageListComponent.builder().appComponent(appComponent).packageListModule(new PackageListModule(this)).build().inject(this);
     }
 
     @Override
     public int getLayoutID() {
+        Log.i(TAG, "getLayoutID: ");
         return R.layout.activity_main;
     }
 
@@ -172,6 +176,7 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
     }
 
     private void initAdapter() {
+        Log.i(TAG, "initAdapter: ");
         adapter = new CustomRecyclerAdapter<APKEntity>(apkList) {
             @Override
             public void convert(CommonViewHolder holder, final APKEntity apkEntity, int position) {
@@ -211,6 +216,7 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
 
     @Override
     public void onLoadPackageListSuccess(List<PackageEntity> dataList) {
+        Log.i(TAG, "onLoadPackageListSuccess:size ==  " + dataList.size());
         disableFilter(false);
         swipeRefreshLayout.setRefreshing(false);
         pkgList.clear();

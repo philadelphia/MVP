@@ -1,5 +1,9 @@
 package com.meiliwu.installer.base;
 
+import android.util.Log;
+
+import com.meiliwu.installer.ui.packageList.mvp.PackageListContract;
+
 import java.lang.ref.WeakReference;
 
 import rx.Subscription;
@@ -10,6 +14,7 @@ import rx.subscriptions.CompositeSubscription;
  * Date: 2018/3/29.
  */
 public class BasePresenter<V extends IView, M  extends IModel> {
+    private static final String TAG = "BasePresenter";
     private WeakReference<IView> mViewWeakReference;
     private WeakReference<IModel> mModelWeakReference ;
     private V mView;
@@ -25,14 +30,16 @@ public class BasePresenter<V extends IView, M  extends IModel> {
     }
 
     public V getView() {
-        return mView;
+        return ((V) mViewWeakReference.get());
     }
 
     public M getModel() {
-        return mModel;
+        return ((M) mModelWeakReference.get());
+
     }
 
     public void onDetach(){
+        Log.i(TAG, "onDetach: ");
         if (mViewWeakReference != null){
             mViewWeakReference.clear();
         }

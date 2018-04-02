@@ -23,7 +23,7 @@ public interface AppComponent {
 
     Application Application();
 
-//    Context context();
+    Context context();
 
     ApiService apiService();  // 所有Api请求的管理类
 
