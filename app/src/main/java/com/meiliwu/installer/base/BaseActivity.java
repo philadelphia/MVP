@@ -5,32 +5,26 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.meiliwu.installer.App;
-import com.meiliwu.installer.di.AppComponent;
-
-import javax.inject.Inject;
-
 /**
  * Author:  ZhangTao
  * Date: 2018/3/29.
  */
-public abstract class BaseActivity<P extends BasePresenter> extends AppCompatActivity {
+public abstract class BaseActivity<P extends BasePresenter> extends AppCompatActivity implements IView {
     private static final String TAG = "BaseActivity";
-    @Inject
-    P presenter;
+
+    protected P presenter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.i(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
         setContentView(getLayoutID());
-        componentInject(((App) getApplication()).getAppComponent());//依赖注入
+        presenter = createPresenter();
+        if (presenter != null) {
+            presenter.onAttach( this);
+        }
     }
 
-    public P getPresenter() {
-        return presenter;
-
-    }
 
     @Override
     protected void onDestroy() {
@@ -40,8 +34,9 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
         }
     }
 
-    protected abstract void componentInject(AppComponent appComponent);
 
     public abstract int getLayoutID();
+
+    public abstract P createPresenter();
 }
 

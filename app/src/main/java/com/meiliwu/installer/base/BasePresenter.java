@@ -13,19 +13,14 @@ import rx.subscriptions.CompositeSubscription;
  * Author:  ZhangTao
  * Date: 2018/3/29.
  */
-public class BasePresenter<V extends IView, M  extends IModel> {
+public class BasePresenter<V extends IView> {
     private static final String TAG = "BasePresenter";
-    private WeakReference<IView> mViewWeakReference;
-    private WeakReference<IModel> mModelWeakReference ;
-    private V mView;
-    private M mModel;
+    private WeakReference<V> mViewWeakReference;
+
     private CompositeSubscription compositeSubscription;
 
-    public BasePresenter(V view, M model){
-        this.mView = view;
-        this.mModel = model;
-        mModelWeakReference = new WeakReference<IModel>(mModel);
-        mViewWeakReference = new WeakReference<IView>(mView);
+    public BasePresenter(){
+
         compositeSubscription = new CompositeSubscription();
     }
 
@@ -33,19 +28,15 @@ public class BasePresenter<V extends IView, M  extends IModel> {
         return ((V) mViewWeakReference.get());
     }
 
-    public M getModel() {
-        return ((M) mModelWeakReference.get());
 
+    protected void onAttach(V v){
+        Log.i(TAG, "onAttach: ");
+        mViewWeakReference = new WeakReference<>(v);
     }
-
     public void onDetach(){
         Log.i(TAG, "onDetach: ");
         if (mViewWeakReference != null){
             mViewWeakReference.clear();
-        }
-
-        if (mModelWeakReference != null){
-            mModelWeakReference.clear();
         }
 
         if (compositeSubscription != null) {

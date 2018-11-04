@@ -2,13 +2,15 @@ package com.meiliwu.installer.ui.packageList.mvp;
 
 import android.util.Log;
 
+import com.meiliwu.installer.api.ApiService;
 import com.meiliwu.installer.base.BasePresenter;
+import com.meiliwu.installer.base.IView;
 import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.entity.Result;
 import com.meiliwu.installer.rx.RxErrorHandler;
 import com.meiliwu.installer.rx.RxErrorHandlerSubscriber;
-import com.meiliwu.installer.ui.packageList.di.ActivityScope;
+import com.meiliwu.installer.utils.ApiServiceUtil;
 
 import javax.inject.Inject;
 
@@ -20,29 +22,21 @@ import rx.Subscription;
  * Date   2017/10/30
  */
 
-@ActivityScope
-public class PackageListPresenter extends BasePresenter<PackageListContract.View, PackageListContract.Model> {
+public class PackageListPresenter extends BasePresenter<PackageListContract.View> {
     private static final String TAG = "PackageListPresenter";
 
-
+    private PackageListContract.Model model;
     private RxErrorHandler rxErrorHandler;
 
     @Inject
-    public PackageListPresenter(PackageListContract.View view, PackageListContract.Model model, RxErrorHandler rxErrorHandler) {
-        super(view, model);
+    public PackageListPresenter( RxErrorHandler rxErrorHandler) {
         this.rxErrorHandler = rxErrorHandler;
+        model = new PackageListModel(ApiServiceUtil.getApiService());
 
     }
 
     public void getPackageList() {
-        Log.i(TAG, "getPackageList: ");
-        Observable<Result<PackageEntity>> observable = getModel().getPackageList();
-        if (observable == null){
-            Log.i(TAG, "getPackageList: observable is null");
-        }else {
-            Log.i(TAG, "getPackageList: observable is not null");
-        }
-
+        Observable<Result<PackageEntity>> observable = model.getPackageList();
         Subscription subscribe = observable.subscribe(new RxErrorHandlerSubscriber<Result<PackageEntity>>(rxErrorHandler) {
             @Override
             public void onStart() {
@@ -75,7 +69,7 @@ public class PackageListPresenter extends BasePresenter<PackageListContract.View
         Log.i(TAG, "getSpecifiedAPKVersionList:system_name  " + system_name);
         Log.i(TAG, "getSpecifiedAPKVersionList:application_id = " + application_id);
         Log.i(TAG, "getSpecifiedAPKVersionList: version_type = " + version_type);
-        Observable<Result<APKEntity>> specifiedAPKVersionList = getModel().getSpecifiedAPKVersionList(system_name, application_id, version_type, pageIndex);
+        Observable<Result<APKEntity>> specifiedAPKVersionList = model.getSpecifiedAPKVersionList(system_name, application_id, version_type, pageIndex);
         Subscription subscription = specifiedAPKVersionList.subscribe(new RxErrorHandlerSubscriber<Result<APKEntity>>(rxErrorHandler) {
             @Override
             public void onNext(Result<APKEntity> apkEntityResult) {

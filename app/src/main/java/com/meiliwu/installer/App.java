@@ -4,11 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.meiliwu.installer.di.AppComponent;
-import com.meiliwu.installer.di.AppModule;
-import com.meiliwu.installer.di.DaggerAppComponent;
-import com.meiliwu.installer.di.NetModule;
-import com.meiliwu.installer.di.ServiceModule;
 import com.meiliwu.installer.http.GlobalHttpHandler;
 import com.meiliwu.installer.rx.ResponseErrorListener;
 
@@ -23,31 +18,15 @@ import okhttp3.Response;
 
 public class App extends Application implements ResponseErrorListener{
     private static App mInstance ;
-    private AppComponent appComponent;
-    private AppModule appModule;
-    private NetModule netModule;
-    private ServiceModule serviceModule;
     private static final String TAG = "App";
 
     @Override
     public void onCreate() {
         super.onCreate();
         mInstance = this;
-        initModules();
-        appComponent = DaggerAppComponent.builder().appModule(appModule).netModule(netModule).serviceModule(serviceModule).build();
-        appComponent.inject(this);
+
     }
 
-    private void initModules() {
-        appModule = new AppModule(this);
-        netModule = new NetModule.Builder()
-                .setApiUrl("http://backstage.mlwplus.com/")
-                .setErrorListener(this)
-                .setHandler(getHttpHandler())
-                .setInterceptors(null).build();
-
-        serviceModule = new ServiceModule();
-    }
 
     public static Application getInstance() {
         return mInstance;
@@ -58,9 +37,6 @@ public class App extends Application implements ResponseErrorListener{
         Toast.makeText(context, e.getMessage() + e.getCause(), Toast.LENGTH_LONG).show();
     }
 
-    public AppComponent getAppComponent(){
-        return appComponent;
-    }
 
     public static GlobalHttpHandler getHttpHandler() {
         return new GlobalHttpHandler() {

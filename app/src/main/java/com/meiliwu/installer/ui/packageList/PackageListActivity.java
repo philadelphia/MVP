@@ -27,16 +27,13 @@ import com.meiliwu.installer.R;
 import com.meiliwu.installer.adapter.CommonViewHolder;
 import com.meiliwu.installer.adapter.CustomRecyclerAdapter;
 import com.meiliwu.installer.base.BaseActivity;
-import com.meiliwu.installer.di.AppComponent;
 import com.meiliwu.installer.entity.APKEntity;
 import com.meiliwu.installer.entity.BuildType;
 import com.meiliwu.installer.entity.ISelectable;
 import com.meiliwu.installer.entity.PackageEntity;
 import com.meiliwu.installer.rx.ResponseErrorListener;
+import com.meiliwu.installer.rx.RxErrorHandler;
 import com.meiliwu.installer.service.DownloadService;
-import com.meiliwu.installer.ui.packageList.di.DaggerPackageListComponent;
-import com.meiliwu.installer.ui.packageList.di.PackageListComponent;
-import com.meiliwu.installer.ui.packageList.di.PackageListModule;
 import com.meiliwu.installer.ui.packageList.mvp.PackageListContract;
 import com.meiliwu.installer.ui.packageList.mvp.PackageListPresenter;
 import com.meiliwu.installer.utils.EndlessRecyclerOnScrollListener;
@@ -93,14 +90,14 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
         disableFilter(true);
 
         //请求数据
-        if (getPresenter() == null) {
+        if (presenter == null) {
             Log.i(TAG, "onCreate: getPresenter() == null");
         }else {
-            Log.i(TAG, "onCreate: SimpleName " + getPresenter().getClass().getSimpleName());
+            Log.i(TAG, "onCreate: SimpleName " + presenter.getClass().getSimpleName());
             Log.i(TAG, "onCreate: Presenter not null" );
         }
-        getPresenter().getPackageList();
-        getPresenter().getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
+        presenter.getPackageList();
+        presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
 
         filterBuildType.setTitle("全部");
         filterPackageName.setTitle("全部");
@@ -111,7 +108,7 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
             public void onLoadMore() {
                 if (apkList.size() < dataListSize) {
                     adapter.setLoadState(adapter.LOADING);
-                    getPresenter().getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
+                    presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
                 }
 
             }
@@ -133,15 +130,14 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
     }
 
     @Override
-    protected void componentInject(AppComponent appComponent) {
-        Log.i(TAG, "componentInject: ");
-        DaggerPackageListComponent.builder().appComponent(appComponent).packageListModule(new PackageListModule(this)).build().inject(this);
-    }
-
-    @Override
     public int getLayoutID() {
         Log.i(TAG, "getLayoutID: ");
         return R.layout.activity_main;
+    }
+
+    @Override
+    public PackageListPresenter createPresenter() {
+        return new PackageListPresenter(new RxErrorHandler.Builder().with(this).responseErrorListener(this).build());
     }
 
     private void requestPermissions() {
@@ -252,7 +248,7 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
         statusLayout.setEmptyClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getPresenter().getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
+                presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
             }
         });
     }
@@ -293,8 +289,8 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
         /*清空已加载的apk数据*/
         apkList.clear();
         pageIndex = 1;
-        getPresenter().getPackageList();
-        getPresenter().getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
+        presenter.getPackageList();
+        presenter.getSpecifiedAPKVersionList(defaultSystemType, selectedApplicationID, selectedVersionType, pageIndex);
     }
 
     @OnClick({R.id.filter_buildType, R.id.filter_packageName})
@@ -348,7 +344,7 @@ public class PackageListActivity extends BaseActivity<PackageListPresenter> impl
 
     private void doFilter(String application_id, String version_type) {
         pageIndex = 1;
-        getPresenter().getSpecifiedAPKVersionList(PackageListActivity.defaultSystemType, application_id, version_type, pageIndex);
+        presenter.getSpecifiedAPKVersionList(PackageListActivity.defaultSystemType, application_id, version_type, pageIndex);
     }
 
     private void registerReceiver() {
